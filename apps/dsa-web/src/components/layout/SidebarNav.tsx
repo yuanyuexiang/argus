@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { BarChart3, Bell, BriefcaseBusiness, Home, LogOut, MessageSquareQuote, Search, Settings2 } from 'lucide-react';
+import { Bell, BriefcaseBusiness, History, Home, ListFilter, LogOut, MessageCircleQuestion, Settings2, Telescope } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { ALPHASIFT_CONFIG_CHANGED_EVENT, SYSTEM_CONFIG_CHANGED_EVENT, alphasiftApi } from '../../api/alphasift';
 import { useAuth } from '../../contexts/AuthContext';
@@ -26,10 +26,10 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'home', label: '首页', to: '/', icon: Home, exact: true },
-  { key: 'chat', label: '问股', to: '/chat', icon: MessageSquareQuote, badge: 'completion' },
-  { key: 'screening', label: '选股', to: '/screening', icon: Search },
+  { key: 'chat', label: '问股', to: '/chat', icon: MessageCircleQuestion, badge: 'completion' },
+  { key: 'screening', label: '选股', to: '/screening', icon: ListFilter },
   { key: 'portfolio', label: '持仓', to: '/portfolio', icon: BriefcaseBusiness },
-  { key: 'backtest', label: '回测', to: '/backtest', icon: BarChart3 },
+  { key: 'backtest', label: '回测', to: '/backtest', icon: History },
   { key: 'alerts', label: '告警', to: '/alerts', icon: Bell },
   { key: 'settings', label: '设置', to: '/settings', icon: Settings2 },
 ];
@@ -73,7 +73,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
     <div className="flex h-full flex-col">
       <div className={cn('mb-4 flex items-center gap-2 px-1', collapsed ? 'justify-center' : '')}>
         <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-gradient text-[hsl(var(--primary-foreground))] shadow-[0_12px_28px_var(--nav-brand-shadow)]">
-          <BarChart3 className="h-5 w-5" />
+          <Telescope className="h-5 w-5" />
         </div>
         {!collapsed ? (
           <p className="min-w-0 truncate text-sm font-semibold text-foreground">DSA</p>

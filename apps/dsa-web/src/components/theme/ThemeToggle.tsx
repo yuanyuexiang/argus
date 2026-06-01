@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { BarChart3, Check, Monitor, Moon, Sun } from 'lucide-react';
+import { CandlestickChart, Check, Monitor, Moon, Palette, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { cn } from '../../utils/cn';
 
@@ -14,7 +14,7 @@ const THEME_OPTIONS: Array<{
 }> = [
   { value: 'light', label: '浅色', icon: Sun },
   { value: 'dark', label: '深色', icon: Moon },
-  { value: 'nasdaq', label: '纳斯达克', icon: BarChart3 },
+  { value: 'nasdaq', label: '纳斯达克', icon: CandlestickChart },
   { value: 'system', label: '跟随系统', icon: Monitor },
 ];
 
@@ -63,9 +63,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
   const activeTheme = (theme as ThemeOption | undefined) ?? 'system';
   const visualTheme = resolvedTheme ?? 'dark';
-  const TriggerIcon =
-    activeTheme === 'nasdaq' ? BarChart3 : visualTheme === 'light' ? Sun : Moon;
   const isNavVariant = variant === 'nav';
+  // 图标栏(nav)里用调色板图标明确表达「主题/外观」；其它位置仍按当前明暗显示。
+  const TriggerIcon = isNavVariant ? Palette : visualTheme === 'light' ? Sun : Moon;
 
   return (
     <div className="relative" ref={containerRef}>
