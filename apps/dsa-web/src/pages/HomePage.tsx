@@ -9,6 +9,8 @@ import { systemConfigApi } from '../api/systemConfig';
 import { ApiErrorAlert, ConfirmDialog, Button, EmptyState, InlineAlert } from '../components/common';
 import { DashboardStateBlock } from '../components/dashboard';
 import { StockAutocomplete } from '../components/StockAutocomplete';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { HistoryList, StockHistoryTrendDrawer } from '../components/history';
 import { MasterDetail } from '../components/layout/master-detail';
 import { ReportMarkdownDrawer } from '../components/report/ReportMarkdownDrawer';
@@ -26,7 +28,6 @@ type MarketReviewNotice = {
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isSubmittingMarketReview, setIsSubmittingMarketReview] = useState(false);
   const [marketReviewNotice, setMarketReviewNotice] = useState<MarketReviewNotice>(null);
@@ -321,7 +322,6 @@ const HomePage: React.FC = () => {
 
   const handleHistoryItemClick = useCallback((recordId: number) => {
     void selectHistoryItem(recordId);
-    setSidebarOpen(false);
   }, [selectHistoryItem]);
 
   const handleSubmitAnalysis = useCallback(
@@ -567,7 +567,7 @@ const HomePage: React.FC = () => {
     <MasterDetail
       list={
         <div className="flex h-full min-h-0 flex-col">
-          <div className="flex-shrink-0 border-b border-border/60 p-3">
+          <div className="flex-shrink-0 space-y-2.5 border-b border-border/60 p-3">
             <StockAutocomplete
               value={query}
               onChange={setQuery}
@@ -578,33 +578,9 @@ const HomePage: React.FC = () => {
               disabled={isAnalyzing}
               className={inputError ? 'border-danger/50' : undefined}
             />
-          </div>
-          {sidebarContent}
-        </div>
-      }
-      listLabel="历史分析"
-      listOpen={sidebarOpen}
-      onListOpenChange={setSidebarOpen}
-      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
-    >
-      <div
-        data-testid="home-dashboard"
-        className="flex-1 flex flex-col min-h-0 min-w-0 max-w-full lg:max-w-6xl mx-auto w-full"
-      >
-        <header className="relative z-30 flex min-w-0 flex-shrink-0 items-center overflow-visible px-3 py-3 md:px-4 md:py-4">
-          <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:flex-row md:items-center">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden -ml-1 flex-shrink-0 rounded-lg p-1.5 text-secondary-text transition-colors hover:bg-hover hover:text-foreground"
-                aria-label="历史记录"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
+            <div className="flex flex-wrap items-center gap-2">
               {analysisSkills.length > 0 ? (
-                <div ref={strategyMenuRef} className="relative flex-shrink-0">
+                <div ref={strategyMenuRef} className="relative">
                   <button
                     ref={strategyButtonRef}
                     id="strategy-menu-button"
@@ -615,7 +591,7 @@ const HomePage: React.FC = () => {
                     onClick={() => setStrategyMenuOpen((open) => !open)}
                     onKeyDown={handleStrategyButtonKeyDown}
                     disabled={isAnalyzing}
-                    className="home-surface-button flex h-10 max-w-[8.5rem] items-center gap-1.5 rounded-xl px-3 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-60 sm:max-w-[11rem]"
+                    className="home-surface-button flex h-9 max-w-[10rem] items-center gap-1.5 rounded-xl px-3 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <SlidersHorizontal className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     <span className="truncate">{selectedStrategy?.name || '策略'}</span>
@@ -626,7 +602,7 @@ const HomePage: React.FC = () => {
                       role="menu"
                       aria-labelledby="strategy-menu-button"
                       onKeyDown={handleStrategyMenuKeyDown}
-                      className="absolute right-0 top-11 z-[120] max-h-80 w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto rounded-xl border border-subtle bg-elevated p-1.5 text-sm text-foreground shadow-2xl"
+                      className="absolute left-0 top-11 z-[120] max-h-80 w-[min(18rem,calc(100vw-1.5rem))] overflow-y-auto rounded-xl border border-subtle bg-elevated p-1.5 text-sm text-foreground shadow-2xl"
                     >
                       {strategyOptions.map((option, index) => {
                         const selected = selectedStrategyId === option.id;
@@ -655,9 +631,7 @@ const HomePage: React.FC = () => {
                   ) : null}
                 </div>
               ) : null}
-            </div>
-            <div className="flex min-w-0 flex-shrink-0 items-center gap-2.5">
-              <label className="flex h-10 flex-shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border border-subtle bg-surface/60 px-3 text-xs text-secondary-text select-none transition-colors hover:border-subtle-hover hover:text-foreground">
+              <label className="flex h-9 flex-shrink-0 cursor-pointer items-center gap-1.5 rounded-xl border border-subtle bg-surface/60 px-3 text-xs text-secondary-text select-none transition-colors hover:border-subtle-hover hover:text-foreground">
                 <input
                   type="checkbox"
                   checked={notify}
@@ -669,11 +643,11 @@ const HomePage: React.FC = () => {
               <Button
                 type="button"
                 variant="secondary"
-                size="md"
+                size="sm"
                 isLoading={isSubmittingMarketReview}
                 loadingText="提交中"
                 onClick={() => void handleTriggerMarketReview()}
-                className="h-10 flex-1 whitespace-nowrap md:flex-none"
+                className="h-9 whitespace-nowrap"
               >
                 <BarChart3 className="h-4 w-4" aria-hidden="true" />
                 大盘复盘
@@ -682,7 +656,7 @@ const HomePage: React.FC = () => {
                 type="button"
                 onClick={() => handleSubmitAnalysis()}
                 disabled={!query || isAnalyzing}
-                className="btn-primary flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap md:flex-none"
+                className="btn-primary flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap"
               >
                 {isAnalyzing ? (
                   <>
@@ -698,8 +672,20 @@ const HomePage: React.FC = () => {
               </button>
             </div>
           </div>
-        </header>
-
+          <div className="min-h-0 flex-1 overflow-hidden">
+            {sidebarContent}
+          </div>
+        </div>
+      }
+      listLabel="历史分析"
+      listWidth="22rem"
+      mobileList="stack"
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
+    >
+      <div
+        data-testid="home-dashboard"
+        className="flex-1 flex flex-col min-h-0 min-w-0 max-w-full lg:max-w-6xl mx-auto w-full"
+      >
         {inputError || duplicateError ? (
           <div className="px-3 pb-2 md:px-4">
             {inputError ? (
@@ -786,12 +772,12 @@ const HomePage: React.FC = () => {
                     {marketReviewReportCopied ? '已复制' : '复制'}
                   </button>
                 </div>
-                <pre
+                <div
                   data-testid="market-review-report"
-                  className="overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-background px-3 py-2 leading-relaxed"
+                  className="home-markdown-prose max-w-none break-words rounded-lg bg-background px-3 py-2"
                 >
-                  {marketReviewReport}
-                </pre>
+                  <Markdown remarkPlugins={[remarkGfm]}>{marketReviewReport}</Markdown>
+                </div>
               </div>
             ) : null}
 

@@ -124,9 +124,9 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-        xl: '12px',
-        '2xl': '16px',
-        '3xl': '20px',
+        xl: '10px',
+        '2xl': '12px',
+        '3xl': '14px',
       },
       fontSize: {
         xxs: '10px',

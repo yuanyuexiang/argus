@@ -385,7 +385,7 @@ const BacktestPage: React.FC = () => {
       listLabel="表现指标"
       listWidth="15rem"
       mobileList="stack"
-      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)] rounded-[1.5rem]"
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)] rounded-[1rem]"
     >
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent">
       {/* Header */}

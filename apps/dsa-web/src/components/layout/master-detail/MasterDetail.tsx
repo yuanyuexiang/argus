@@ -71,7 +71,7 @@ export const MasterDetail: React.FC<MasterDetailProps> = ({
     <MasterDetailContext.Provider value={contextValue}>
       <div
         className={cn(
-          'flex h-full min-h-0 w-full overflow-hidden rounded-[1.25rem] border border-border/60 bg-card/40 backdrop-blur-sm',
+          'flex h-full min-h-0 w-full overflow-hidden rounded-[0.875rem] border border-border/60 bg-card/40 backdrop-blur-sm',
           isStack ? 'flex-col lg:flex-row' : 'flex-row',
           className
         )}

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [修复] 大盘复盘报告在首页(历史查看与实时运行)以 Markdown 正确渲染，不再原样输出 `#`/`>` 等标记。
+
 - [改进] Web 端布局参考微信改为三栏式（左侧窄图标导航栏 + 中间列表栏 + 右侧主区）：左栏改为 64px 纯图标 + hover 提示；新增共享 `MasterDetail/ListPanel/DetailHeader` 组件，问股/告警/设置/回测页接入统一的「列表 + 详情」外壳（移动端按页采用抽屉或堆叠）；首页/持仓/选股保持主区铺满。沿用现有主题配色，路由与后端不变。
 - [新功能] 新增前后端分离 + 独立 PostgreSQL 的可选部署栈 `docker/docker-compose.separated.yml`（Nginx 网关托管 SPA 并反代 `/api` 到后端、独立 `postgres:16` 服务），与单体 `docker-compose.yml` 互不影响；新增 `docker/nginx.conf`、`docker/Dockerfile.web`。
 - [改进] `docker/Dockerfile` 新增可选 `APT_MIRROR` / `PIP_INDEX_URL` 构建参数（默认空=官方源，CI/单体/海外不受影响）；分离部署栈默认走国内镜像，解决受限网络下构建期无法直达 Debian/PyPI 的问题。

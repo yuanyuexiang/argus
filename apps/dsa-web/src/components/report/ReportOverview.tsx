@@ -1,4 +1,6 @@
 import type React from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type {
   ReportDetails as ReportDetailsType,
   ReportMeta,
@@ -160,12 +162,20 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
               </div>
             </div>
 
-            {/* 关键结论 */}
+            {/* 关键结论（大盘复盘为 Markdown 正文，按 Markdown 渲染；个股报告为纯文本摘要） */}
             <div className="home-divider border-t pt-5">
               <span className="label-uppercase">{text.keyInsights}</span>
-              <p className="mt-2 max-w-[62ch] whitespace-pre-wrap text-left text-[15px] leading-7 text-foreground">
-                {summary.analysisSummary || text.noAnalysisSummary}
-              </p>
+              {meta.reportType === 'market_review' ? (
+                <div className="home-markdown-prose mt-2 max-w-none break-words text-left">
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {summary.analysisSummary || text.noAnalysisSummary}
+                  </Markdown>
+                </div>
+              ) : (
+                <p className="mt-2 max-w-[62ch] whitespace-pre-wrap text-left text-[15px] leading-7 text-foreground">
+                  {summary.analysisSummary || text.noAnalysisSummary}
+                </p>
+              )}
             </div>
           </Card>
 

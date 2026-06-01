@@ -619,7 +619,7 @@ const SettingsPage: React.FC = () => {
       className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
     >
       <div className="settings-page flex h-full min-h-0 flex-col overflow-y-auto px-4 pb-6 pt-4 md:px-6">
-      <div className="mb-5 rounded-[1.5rem] border settings-border bg-card/94 px-5 py-5 shadow-soft-card-strong backdrop-blur-sm">
+      <div className="mb-5 rounded-[1rem] border settings-border bg-card/94 px-5 py-5 shadow-soft-card-strong backdrop-blur-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-foreground">系统设置</h1>
