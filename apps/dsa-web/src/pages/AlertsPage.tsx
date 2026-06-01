@@ -331,6 +331,7 @@ const AlertsPage: React.FC = () => {
         {notificationsLoading ? <Loading label="正在加载通知尝试记录" /> : null}
         {!notificationsLoading && notifications.length === 0 ? (
           <EmptyState
+            className="py-6"
             icon={<BellRing className="h-6 w-6" />}
             title="暂无通知尝试记录"
             description="当前没有可展示的通知尝试明细；告警触发仍会按已配置通知渠道发送。"

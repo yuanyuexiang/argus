@@ -202,7 +202,7 @@ export const AlertRuleList: React.FC<AlertRuleListProps> = ({
       </div>
 
       {rules.length === 0 ? (
-        <div className="flex min-h-[220px] flex-1 items-center justify-center">
+        <div className="flex min-h-[100px] items-center justify-center">
           <EmptyState
             icon={<Bell className="h-6 w-6" />}
             title={isLoading ? '正在加载规则' : '暂无告警规则'}

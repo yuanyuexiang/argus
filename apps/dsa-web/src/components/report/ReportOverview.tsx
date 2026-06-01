@@ -124,12 +124,12 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* 主信息区 - 两列布局 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+      {/* 主信息区 - 两列布局（等高拉伸，避免短报告时左列留白） */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:items-stretch">
         {/* 左侧：股票信息与结论 */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* 股票头部 */}
-          <Card variant="gradient" padding="md" className="home-report-hero">
+        <div className="lg:col-span-2 flex flex-col gap-5">
+          {/* 股票头部（撑满左列高度，平衡右侧信号栏） */}
+          <Card variant="gradient" padding="md" className="home-report-hero flex-1">
             <div className="flex items-start justify-between mb-5">
               <div className="flex-1">
                 <div className="flex items-center gap-3">
@@ -179,112 +179,108 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <div className="space-y-4">
-              {/* 操作建议 */}
-              <Card
-                variant="bordered"
-                padding="sm"
-                hoverable
-                className="home-panel-card home-insight-card"
-                style={{ ['--home-insight-tone' as string]: 'var(--home-strategy-buy)' }}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="home-insight-icon w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="home-insight-title text-[11px] font-medium uppercase tracking-[0.16em]">{text.actionAdvice}</h4>
-                    <p className="home-insight-body text-sm leading-6">
-                      {summary.operationAdvice || text.noAdvice}
-                    </p>
-                  </div>
+          {relatedBoards.length > 0 && (
+            <Card variant="bordered" padding="sm" className="home-panel-card text-left">
+              <section aria-label={text.relatedBoards}>
+                <div className="mb-3 flex items-baseline gap-2">
+                  <span className="label-uppercase">{text.boardLinkage}</span>
+                  <h3 className="mt-0.5 text-base font-semibold text-foreground">{text.relatedBoards}</h3>
                 </div>
-              </Card>
 
-              {relatedBoards.length > 0 && (
-                <Card variant="bordered" padding="sm" className="home-panel-card text-left">
-                  <section aria-label={text.relatedBoards}>
-                    <div className="mb-3 flex items-baseline gap-2">
-                      <span className="label-uppercase">{text.boardLinkage}</span>
-                      <h3 className="mt-0.5 text-base font-semibold text-foreground">{text.relatedBoards}</h3>
-                    </div>
-
-                    <div className="home-related-board-list flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
-                      {relatedBoards.map((board, index) => {
-                        const boardName = normalizeBoardName(board.name);
-                        const signal = boardSignals.get(boardName);
-                        return (
-                          <div
-                            key={`${boardName}-${board.code || index}`}
-                            className="inline-flex shrink-0 items-center gap-2 text-sm"
+                <div className="home-related-board-list flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
+                  {relatedBoards.map((board, index) => {
+                    const boardName = normalizeBoardName(board.name);
+                    const signal = boardSignals.get(boardName);
+                    return (
+                      <div
+                        key={`${boardName}-${board.code || index}`}
+                        className="inline-flex shrink-0 items-center gap-2 text-sm"
+                      >
+                        <span className="home-accent-chip px-2 py-0.5 text-xs font-medium">
+                          {boardName}
+                        </span>
+                        {board.type && (
+                          <span className="home-board-pill rounded-full px-2 py-0.5 text-xs">
+                            {board.type}
+                          </span>
+                        )}
+                        {signal && (
+                          <Badge
+                            variant={getBoardStatusVariant(signal.status)}
+                            className="home-board-status-badge shadow-none"
                           >
-                            <span className="home-accent-chip px-2 py-0.5 text-xs font-medium">
-                              {boardName}
-                            </span>
-                            {board.type && (
-                              <span className="home-board-pill rounded-full px-2 py-0.5 text-xs">
-                                {board.type}
-                              </span>
-                            )}
-                            {signal && (
-                              <Badge
-                                variant={getBoardStatusVariant(signal.status)}
-                                className="home-board-status-badge shadow-none"
-                              >
-                                {getBoardStatusLabel(signal.status)}
-                              </Badge>
-                            )}
-                            {signal && signal.changePct !== undefined && signal.changePct !== null && (
-                              <span
-                                className="text-xs font-mono"
-                                style={getPriceChangeStyle(signal.changePct)}
-                              >
-                                {formatChangePct(signal.changePct)}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                </Card>
-              )}
-            </div>
-
-            {/* 趋势预测 */}
-            <Card
-              variant="bordered"
-              padding="sm"
-              hoverable
-              className="home-panel-card home-insight-card"
-              style={{ ['--home-insight-tone' as string]: 'var(--home-strategy-take)' }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="home-insight-icon w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
+                            {getBoardStatusLabel(signal.status)}
+                          </Badge>
+                        )}
+                        {signal && signal.changePct !== undefined && signal.changePct !== null && (
+                          <span
+                            className="text-xs font-mono"
+                            style={getPriceChangeStyle(signal.changePct)}
+                          >
+                            {formatChangePct(signal.changePct)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="space-y-1.5">
-                  <h4 className="home-insight-title text-[11px] font-medium uppercase tracking-[0.16em]">{text.trendPrediction}</h4>
-                  <p className="home-insight-body text-sm leading-6">
-                    {summary.trendPrediction || text.noPrediction}
-                  </p>
-                </div>
-              </div>
+              </section>
             </Card>
-          </div>
+          )}
         </div>
 
-        {/* 右侧：情绪指标 / 关联详情 */}
-        <div className="flex flex-col">
+        {/* 右侧：信号侧栏（市场情绪 + 操作建议 + 趋势预测） */}
+        <div className="flex flex-col gap-4">
           <Card variant="bordered" padding="md" className="home-panel-card home-rail-card !overflow-visible">
             <div className="text-center">
               <h3 className="mb-5 text-sm font-medium tracking-wide text-foreground">{text.marketSentiment}</h3>
               <ScoreGauge score={summary.sentimentScore} size="lg" language={reportLanguage} />
+            </div>
+          </Card>
+
+          {/* 操作建议 */}
+          <Card
+            variant="bordered"
+            padding="sm"
+            hoverable
+            className="home-panel-card home-insight-card"
+            style={{ ['--home-insight-tone' as string]: 'var(--home-strategy-buy)' }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="home-insight-icon w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="home-insight-title text-[11px] font-medium uppercase tracking-[0.16em]">{text.actionAdvice}</h4>
+                <p className="home-insight-body text-sm leading-6">
+                  {summary.operationAdvice || text.noAdvice}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* 趋势预测 */}
+          <Card
+            variant="bordered"
+            padding="sm"
+            hoverable
+            className="home-panel-card home-insight-card"
+            style={{ ['--home-insight-tone' as string]: 'var(--home-strategy-take)' }}
+          >
+            <div className="flex items-start gap-3">
+              <div className="home-insight-icon w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="home-insight-title text-[11px] font-medium uppercase tracking-[0.16em]">{text.trendPrediction}</h4>
+                <p className="home-insight-body text-sm leading-6">
+                  {summary.trendPrediction || text.noPrediction}
+                </p>
+              </div>
             </div>
           </Card>
         </div>

@@ -684,7 +684,7 @@ const HomePage: React.FC = () => {
     >
       <div
         data-testid="home-dashboard"
-        className="flex-1 flex flex-col min-h-0 min-w-0 max-w-full lg:max-w-6xl mx-auto w-full"
+        className="flex-1 flex flex-col min-h-0 min-w-0 w-full"
       >
         {inputError || duplicateError ? (
           <div className="px-3 pb-2 md:px-4">
@@ -793,35 +793,41 @@ const HomePage: React.FC = () => {
                 <DashboardStateBlock title="加载报告中..." loading />
               </div>
             ) : selectedReport ? (
-              <div className={isHistoryTrendOpen ? 'max-w-6xl space-y-4 pb-8' : 'max-w-4xl space-y-4 pb-8'}>
-                <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="space-y-4 pb-8">
+                <div className="flex flex-wrap items-center justify-end gap-2 border-b border-border/50 pb-3">
                   <Button
                     variant="home-action-ai"
                     size="sm"
+                    className="w-9 justify-center px-0"
+                    title={reportText.reanalyze}
+                    aria-label={reportText.reanalyze}
                     disabled={isAnalyzing || selectedReport.meta.id === undefined || isMarketReviewHistoryReport}
                     onClick={handleReanalyze}
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    {reportText.reanalyze}
                   </Button>
                   <Button
                     variant="home-action-ai"
                     size="sm"
+                    className="w-9 justify-center px-0"
+                    title="追问 AI"
+                    aria-label="追问 AI"
                     disabled={selectedReport.meta.id === undefined || isMarketReviewHistoryReport}
                     onClick={handleAskFollowUp}
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    追问 AI
                   </Button>
                   <Button
                     variant="home-action-ai"
                     size="sm"
+                    className={`w-9 justify-center px-0 ${isHistoryTrendOpen ? 'border-primary/70 bg-primary/15 text-primary shadow-glow-cyan' : ''}`}
+                    title="历史趋势"
+                    aria-label="历史趋势"
                     disabled={selectedReport.meta.id === undefined || isMarketReviewHistoryReport}
-                    className={isHistoryTrendOpen ? 'border-primary/70 bg-primary/15 text-primary shadow-glow-cyan' : undefined}
                     onClick={() => {
                       if (isHistoryTrendOpen) {
                         closeHistoryTrend();
@@ -831,20 +837,22 @@ const HomePage: React.FC = () => {
                     }}
                   >
                     <BarChart3 className="h-4 w-4" />
-                    历史趋势
                   </Button>
                   <Button
                     variant="home-action-ai"
                     size="sm"
+                    className="w-9 justify-center px-0"
+                    title={reportText.fullReport}
+                    aria-label={reportText.fullReport}
                     disabled={selectedReport.meta.id === undefined}
                     onClick={openMarkdownDrawer}
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    {reportText.fullReport}
                   </Button>
                 </div>
+                <div className="w-full">
                 {isHistoryTrendOpen ? (
                   <StockHistoryTrendDrawer
                     key={`stock-history-${selectedReport.meta.id}`}
@@ -865,6 +873,7 @@ const HomePage: React.FC = () => {
                 ) : (
                   <ReportSummary data={selectedReport} isHistory />
                 )}
+                </div>
               </div>
             ) : (
               <div className="flex h-full items-center justify-center">

@@ -673,7 +673,7 @@ const SettingsPage: React.FC = () => {
         <SettingsLoading />
       ) : (
         <section className="space-y-4">
-            {alphasiftItem ? (
+            {alphasiftItem && activeCategory === 'base' ? (
               <SettingsSectionCard
                 title="AlphaSift 选股"
                 description="启用第三方项目 AlphaSift 提供的选股能力。"
