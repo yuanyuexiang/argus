@@ -854,6 +854,9 @@ class Config:
 
     # === 数据库配置 ===
     database_path: str = "./data/stock_analysis.db"
+    # 可选：完整 SQLAlchemy 连接 URL（如 PostgreSQL）。设置后优先于 database_path，
+    # 未设置时回退到本地 SQLite 文件，保持「不配置也可运行」。
+    database_url: str = ""
     sqlite_wal_enabled: bool = True
     sqlite_busy_timeout_ms: int = 5000
     sqlite_write_retry_max: int = 3
@@ -1636,6 +1639,7 @@ class Config:
             md2img_engine=cls._parse_md2img_engine(os.getenv('MD2IMG_ENGINE', 'wkhtmltoimage')),
             prefetch_realtime_quotes=os.getenv('PREFETCH_REALTIME_QUOTES', 'true').lower() == 'true',
             database_path=os.getenv('DATABASE_PATH', './data/stock_analysis.db'),
+            database_url=os.getenv('DATABASE_URL', '').strip(),
             sqlite_wal_enabled=os.getenv('SQLITE_WAL_ENABLED', 'true').lower() == 'true',
             sqlite_busy_timeout_ms=parse_env_int(
                 os.getenv('SQLITE_BUSY_TIMEOUT_MS'),
@@ -2761,9 +2765,12 @@ class Config:
     def get_db_url(self) -> str:
         """
         获取 SQLAlchemy 数据库连接 URL
-        
-        自动创建数据库目录（如果不存在）
+
+        优先使用 DATABASE_URL（如 PostgreSQL：postgresql+psycopg2://user:pwd@host:5432/db）；
+        未配置时回退到本地 SQLite 文件，并自动创建数据库目录（如果不存在）。
         """
+        if self.database_url:
+            return self.database_url
         db_path = Path(self.database_path)
         db_path.parent.mkdir(parents=True, exist_ok=True)
         return f"sqlite:///{db_path.absolute()}"

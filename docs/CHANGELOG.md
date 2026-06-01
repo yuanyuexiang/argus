@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [新功能] 新增前后端分离 + 独立 PostgreSQL 的可选部署栈 `docker/docker-compose.separated.yml`（Nginx 网关托管 SPA 并反代 `/api` 到后端、独立 `postgres:16` 服务），与单体 `docker-compose.yml` 互不影响；新增 `docker/nginx.conf`、`docker/Dockerfile.web`。
+- [改进] `docker/Dockerfile` 新增可选 `APT_MIRROR` / `PIP_INDEX_URL` 构建参数（默认空=官方源，CI/单体/海外不受影响）；分离部署栈默认走国内镜像，解决受限网络下构建期无法直达 Debian/PyPI 的问题。
+- [新功能] 数据库支持通过 `DATABASE_URL` 切换到 PostgreSQL（opt-in）：未配置时仍默认本地 SQLite 文件，零改动运行；配置后经由方言分发的 upsert 与加锁策略适配 PG。新增可选依赖 `psycopg2-binary`。
+- [新功能] Web 端新增「纳斯达克」深蓝大屏主题（深海军蓝 + 电光天青、绿涨红跌），可在主题切换器中选择，与浅色/深色/跟随系统并列。
 - [改进] AlphaSift 选股入口在 Web 侧边栏中移动到“问股”下方，贴近 Agent/研究辅助工作流。
 - [改进] Docker 镜像构建阶段预置默认 AlphaSift 适配层，与桌面发布包一样避免运行期额外安装。
 - [新功能] 新增默认关闭的 AlphaSift 选股页签，通过 `ALPHASIFT_ENABLED` 开启后经由稳定适配层读取策略并执行选股。

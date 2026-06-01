@@ -87,11 +87,48 @@ docker-compose -f ./docker/docker-compose.yml exec -u dsa stock-analyzer python 
 - `./logs/` - 日志文件
 - `./reports/` - 分析报告
 
+> 默认使用 `./data/` 下的 SQLite 文件库，零配置即可运行。
+> 如需使用 PostgreSQL（多实例 / 高并发场景），设置 `DATABASE_URL` 即可切换，例如：
+> `DATABASE_URL=postgresql+psycopg2://user:password@db-host:5432/argus`（需安装 `psycopg2-binary`）。
+> 设置后优先于 `DATABASE_PATH`；`DATABASE_PATH` 所在目录仍用于锁文件等本地产物，建议保持指向一个可写的本地目录。
+
 ### 6. 权限说明
 
 Docker 镜像启动入口会自动创建并修复 `./data`、`./logs`、`./reports` 对应挂载目录的权限，然后降权为非 root 用户 (`dsa`, UID 1000) 运行应用。普通部署不需要手动 `chown` / `chmod`。
 
 如果你显式指定了 `--user` / Compose `user:`，或使用只读挂载、rootless Docker、NFS 等不允许容器修复属主的环境，请确保实际运行用户对这些目录具备写入权限。
+
+### 7. 进阶：前后端分离 + 独立 PostgreSQL（可选）
+
+默认的 `docker-compose.yml` 是「单容器同源」部署（后端同时托管前端）。如需**前后端独立部署 + 独立 PostgreSQL 数据库服务**，使用独立的编排文件 `docker/docker-compose.separated.yml`，它与单体部署互不影响。
+
+拓扑（浏览器只与 Nginx 网关同源通信，因此 Cookie/Session 与 CSRF 行为与单体一致，无需改动认证）：
+
+```
+浏览器 ──同源──▶ web(Nginx) ──/──▶ 托管 SPA 静态
+                          └──/api──▶ backend(FastAPI) ──▶ db(PostgreSQL)
+```
+
+启动（在仓库根目录执行）：
+
+```bash
+# 先在 .env 中设置数据库口令与端口（生产务必修改默认值）
+#   POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB / WEB_PORT
+docker compose -f docker/docker-compose.separated.yml up -d --build
+
+# 仅重建前端（后端不变时）
+docker compose -f docker/docker-compose.separated.yml up -d --build web
+```
+
+要点：
+
+- `web`（Nginx）独立镜像，托管 SPA 并把 `/api` 反代到 `backend`；网关采用运行期惰性 DNS 解析，**后端重启不影响前端可用性**。
+- `backend` 仅跑 API（`--serve-only`），编排自动注入 `DATABASE_URL=postgresql+psycopg2://…@db:5432/…`，优先于 `DATABASE_PATH`。
+- `db` 使用 `postgres:16`，数据持久化在命名卷 `pgdata`，默认**不对外暴露端口**（仅容器网络内可达）。
+- `backend` / `analyzer` 共享同一 PostgreSQL；多服务并发由 PostgreSQL 的 MVCC 处理，不再依赖 SQLite 文件锁。
+- 生产环境在 Nginx 前再终止 TLS，并设置 `TRUST_X_FORWARDED_FOR=true`（编排已默认设置），后端即可据 `X-Forwarded-Proto` 正确签发 `Secure` Cookie。
+- **数据迁移**：首次启动会在空库上自动建表（`create_all`）。项目未集成 Alembic，已有 SQLite 数据迁移到 PostgreSQL 需自行导出导入。
+- 桌面端（Electron）不受影响，仍为本地 SQLite 单包模式。
 
 ---
 

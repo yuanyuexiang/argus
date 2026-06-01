@@ -23,8 +23,16 @@ WORKDIR /app
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+# 可选：国内 apt 镜像（默认空=官方 deb.debian.org；CI/单体/海外环境不受影响）。
+# 网络受限（如代理无法直达 Debian 源）时通过 --build-arg APT_MIRROR=mirrors.tuna.tsinghua.edu.cn 绕行。
+ARG APT_MIRROR=""
+
 # 安装系统依赖（wkhtmltopdf 含 wkhtmltoimage，用于 Markdown 转图片 Issue #289）
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN if [ -n "$APT_MIRROR" ]; then \
+        sed -i "s|deb.debian.org|$APT_MIRROR|g; s|security.debian.org|$APT_MIRROR|g" /etc/apt/sources.list.d/debian.sources 2>/dev/null || true; \
+        sed -i "s|deb.debian.org|$APT_MIRROR|g; s|security.debian.org|$APT_MIRROR|g" /etc/apt/sources.list 2>/dev/null || true; \
+    fi && \
+    apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     curl \
     git \
@@ -43,8 +51,12 @@ RUN groupadd -g 1000 dsa && \
 # 复制依赖文件
 COPY requirements.txt .
 
+# 可选：国内 PyPI 镜像（默认官方 pypi.org；CI/单体/海外环境不受影响）。
+# 网络受限时通过 --build-arg PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple 绕行。
+ARG PIP_INDEX_URL=https://pypi.org/simple
+
 # 安装 Python 依赖
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -i "$PIP_INDEX_URL" -r requirements.txt
 
 # 复制应用代码
 COPY *.py ./
@@ -59,7 +71,7 @@ COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 # Bundle the default AlphaSift adapter in Docker images, matching desktop packages.
 RUN ALPHASIFT_INSTALL_SPEC="$(python -c 'from src.config import DEFAULT_ALPHASIFT_INSTALL_SPEC; print(DEFAULT_ALPHASIFT_INSTALL_SPEC)')" \
     && test -n "$ALPHASIFT_INSTALL_SPEC" \
-    && python -m pip install --no-cache-dir "$ALPHASIFT_INSTALL_SPEC" \
+    && python -m pip install --no-cache-dir -i "$PIP_INDEX_URL" "$ALPHASIFT_INSTALL_SPEC" \
     && python -c "import alphasift.dsa_adapter"
 
 # 确保数据目录存在并授权给 non-root 用户

@@ -45,6 +45,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import (
     declarative_base,
     sessionmaker,
@@ -985,7 +986,21 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
     @staticmethod
     def _normalize_sql_value(value: Any) -> Any:
         return None if pd.isna(value) else value
-    
+
+    @property
+    def is_sqlite(self) -> bool:
+        """当前引擎是否为 SQLite（影响加锁策略与 upsert 方言）。"""
+        return bool(getattr(self, '_is_sqlite_engine', False))
+
+    def _upsert_insert(self, table):
+        """返回方言对应、支持 ON CONFLICT upsert 的 INSERT 构造器。
+
+        SQLite 与 PostgreSQL 均通过 ``.on_conflict_do_update(index_elements=..., set_=...)``
+        暴露一致的 API，因此调用方无需区分方言。
+        """
+        insert_fn = sqlite_insert if self.is_sqlite else pg_insert
+        return insert_fn(table)
+
     def get_session(self) -> Session:
         """
         获取数据库 Session
@@ -2348,7 +2363,7 @@ class DatabaseManager(metaclass=_DatabaseManagerMeta):
                 "estimated_tokens": int(estimated_tokens or 0),
                 "updated_at": now,
             }
-            stmt = sqlite_insert(ConversationSummary).values(**values)
+            stmt = self._upsert_insert(ConversationSummary).values(**values)
             session.execute(
                 stmt.on_conflict_do_update(
                     index_elements=["session_id"],

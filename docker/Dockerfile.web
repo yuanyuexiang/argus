@@ -1,0 +1,28 @@
+# ===================================
+# 前端独立镜像（前后端分离）
+# ===================================
+# 多阶段构建：Node 打包 SPA -> Nginx 托管静态资源并反代 /api 到后端。
+# 构建上下文应为仓库根目录（与 docker/Dockerfile 一致）。
+
+FROM node:20-slim AS web-builder
+
+WORKDIR /app/apps/dsa-web
+
+COPY apps/dsa-web/package.json apps/dsa-web/package-lock.json ./
+RUN npm ci
+
+COPY apps/dsa-web/ ./
+# vite build 的 outDir 为 ../../static，即仓库根的 /app/static
+RUN npm run build
+
+FROM nginx:1.27-alpine
+
+# 自定义 Nginx 配置（静态托管 + /api 反代）
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+# 拷贝构建产物
+COPY --from=web-builder /app/static /usr/share/nginx/html
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD wget -q -O /dev/null http://localhost/ || exit 1

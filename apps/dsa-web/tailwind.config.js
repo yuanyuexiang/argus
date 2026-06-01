@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ['class'],
+  // dark: 变体在 .dark 与 .nasdaq（同为深色主题）下均生效
+  darkMode: ['variant', ['&:where(.dark, .dark *)', '&:where(.nasdaq, .nasdaq *)']],
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',

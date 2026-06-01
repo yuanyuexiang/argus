@@ -301,7 +301,7 @@
   --login-grid-mask: radial-gradient(ellipse 80% 50% at 50% 50%, #000 70%, transparent 100%);
 }
 
-.dark {
+:is(.dark, .nasdaq) {
   --background: 228 35% 7%;
   --foreground: 210 33% 98%;
   --card: 230 24% 10%;
@@ -565,6 +565,76 @@
 }
 
 /* =========================================
+   1b. NASDAQ MarketSite 主题（深蓝大屏风格）
+   先通过上方的 :is(.dark, .nasdaq) 继承完整深色令牌，
+   再在此覆盖调色板为「深海军蓝 + 电光天青」的大屏观感。
+   仅覆盖差异化令牌，其余派生令牌自动级联。
+   ========================================= */
+.nasdaq {
+  color-scheme: dark;
+
+  /* 基础调色板：深海军蓝底 + 电光天青主色 */
+  --background: 213 74% 5%;
+  --foreground: 205 45% 97%;
+  --card: 214 58% 8%;
+  --card-foreground: 205 45% 97%;
+  --popover: 214 58% 8%;
+  --popover-foreground: 205 45% 97%;
+  --primary: 201 100% 53%;
+  --primary-foreground: 214 90% 6%;
+  --secondary: 213 44% 14%;
+  --secondary-foreground: 205 40% 95%;
+  --muted: 213 40% 13%;
+  --muted-foreground: 208 25% 67%;
+  --accent: 213 42% 15%;
+  --accent-foreground: 205 45% 98%;
+  --destructive: 0 84% 62%;
+  --destructive-foreground: 205 45% 98%;
+  --border: 211 46% 20%;
+  --input: 211 46% 20%;
+  --ring: 201 100% 53%;
+  --elevated: 214 50% 10%;
+  --hover: 213 44% 15%;
+  --secondary-text: 208 30% 75%;
+  --muted-text: 210 20% 52%;
+
+  /* 品牌副色：紫色 -> 纳斯达克天青蓝 */
+  --color-purple: 204 95% 64%;
+  --color-purple-dim: 204 95% 54%;
+  --color-purple-glow: hsl(204 95% 64% / 0.3);
+  --border-purple: hsl(204 95% 64% / 0.28);
+  --autocomplete-hover-bg: #2da6ff;
+
+  /* 美股惯例：绿涨红跌（green up / red down） */
+  --home-price-up: hsl(150 76% 47%);
+  --home-price-down: hsl(0 84% 64%);
+  --home-strategy-buy: hsl(150 76% 47%);
+
+  /* Home 中原紫色强调 -> 天青蓝，保持整体蓝调统一 */
+  --home-action-report-bg: hsl(204 95% 64% / 0.1);
+  --home-action-report-border: hsl(204 95% 64% / 0.2);
+  --home-action-report-text: hsl(204 95% 64%);
+  --home-action-report-hover-bg: hsl(204 95% 64% / 0.2);
+  --home-secondary-accent-text: hsl(204 95% 64%);
+  --home-title-accent: hsl(204 95% 64%);
+  --home-panel-gradient-mid: hsl(204 95% 64% / 0.24);
+  --home-history-item-selected-bg:
+    linear-gradient(180deg, hsl(204 95% 64% / 0.14), hsl(var(--primary) / 0.1));
+  --home-prose-blockquote-border: hsl(204 95% 64% / 0.3);
+  --home-prose-blockquote-bg: hsl(204 95% 64% / 0.1);
+
+  /* 登录页：加深为 MarketSite 海军蓝 */
+  --login-bg-main: hsl(214 86% 4%);
+  --login-bg-card: hsl(214 56% 7%);
+  --login-brand-end: hsl(204 100% 60%);
+
+  /* 大屏氛围：更强的辉光与更深的卡片投影 */
+  --glow-intensity: 0.38;
+  --shadow-soft-card: 0 18px 48px hsl(213 80% 3% / 0.55);
+  --shadow-soft-card-strong: 0 24px 56px hsl(213 80% 3% / 0.65);
+}
+
+/* =========================================
    2. GLOBAL STYLES (from Classic)
    ========================================= */
 
@@ -726,7 +796,7 @@
   -webkit-text-fill-color: hsl(var(--muted-text) / 0.6);
 }
 
-.dark [data-testid="home-dashboard"] .stock-autocomplete .input-surface::placeholder {
+:is(.dark, .nasdaq) [data-testid="home-dashboard"] .stock-autocomplete .input-surface::placeholder {
   color: var(--text-muted-text);
   -webkit-text-fill-color: var(--text-muted-text);
 }
@@ -736,11 +806,11 @@
   -webkit-text-fill-color: hsl(var(--muted-text) / 0.62);
 }
 
-.dark [data-testid="home-dashboard"] .stock-autocomplete .input-surface:not(:hover):not(:focus):not(:disabled) {
+:is(.dark, .nasdaq) [data-testid="home-dashboard"] .stock-autocomplete .input-surface:not(:hover):not(:focus):not(:disabled) {
   border-color: hsl(var(--foreground) / 0.2);
 }
 
-.dark [data-testid="chat-workspace"] textarea.input-surface:not(:hover):not(:focus):not(:disabled) {
+:is(.dark, .nasdaq) [data-testid="chat-workspace"] textarea.input-surface:not(:hover):not(:focus):not(:disabled) {
   border-color: hsl(var(--foreground) / 0.2);
 }
 
@@ -1545,18 +1615,18 @@ textarea {
   opacity: 0.55;
 }
 
-.dark .chat-skill-checkbox {
+:is(.dark, .nasdaq) .chat-skill-checkbox {
   border-color: hsl(var(--foreground) / 0.16);
   background: hsl(var(--card) / 0.84);
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-.dark .chat-skill-checkbox:hover {
+:is(.dark, .nasdaq) .chat-skill-checkbox:hover {
   border-color: hsl(var(--primary) / 0.42);
   background: hsl(var(--primary) / 0.09);
 }
 
-.dark .chat-skill-checkbox:checked {
+:is(.dark, .nasdaq) .chat-skill-checkbox:checked {
   border-color: hsl(var(--primary) / 0.68);
   background:
     linear-gradient(135deg, transparent 0 36%, hsl(var(--primary)) 37% 48%, transparent 49%),
@@ -1564,7 +1634,7 @@ textarea {
     hsl(var(--card) / 0.88);
 }
 
-.dark .chat-skill-checkbox:focus-visible {
+:is(.dark, .nasdaq) .chat-skill-checkbox:focus-visible {
   box-shadow:
     0 0 0 3px hsl(var(--primary) / 0.18),
     inset 0 1px 0 hsl(0 0% 100% / 0.06);
@@ -1788,7 +1858,7 @@ textarea {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.44);
 }
 
-.dark .home-report-hero {
+:is(.dark, .nasdaq) .home-report-hero {
   --terminal-card-border: var(--home-panel-border-selected);
   --terminal-card-gradient-start: hsl(var(--primary) / 0.22);
   --terminal-card-gradient-mid: hsl(247 84% 72% / 0.18);
@@ -1797,8 +1867,8 @@ textarea {
   background: linear-gradient(180deg, hsl(var(--card) / 0.96), hsl(var(--background) / 0.94));
 }
 
-.dark .home-report-hero::after,
-.dark .home-rail-card::after {
+:is(.dark, .nasdaq) .home-report-hero::after,
+:is(.dark, .nasdaq) .home-rail-card::after {
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -1807,7 +1877,7 @@ textarea {
   );
 }
 
-.dark .home-rail-card {
+:is(.dark, .nasdaq) .home-rail-card {
   --terminal-card-border: var(--home-panel-border);
   --terminal-card-gradient-start: hsl(var(--primary) / 0.16);
   --terminal-card-gradient-mid: hsl(247 84% 72% / 0.14);
@@ -1816,74 +1886,74 @@ textarea {
   background: linear-gradient(180deg, hsl(var(--card) / 0.94), hsl(var(--background) / 0.92));
 }
 
-.dark .home-insight-card {
+:is(.dark, .nasdaq) .home-insight-card {
   --home-insight-surface: hsl(var(--card) / 0.9);
   background: linear-gradient(180deg, var(--home-insight-surface), hsl(var(--elevated) / 0.82));
 }
 
-.dark .home-insight-card .home-insight-icon {
+:is(.dark, .nasdaq) .home-insight-card .home-insight-icon {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.08);
 }
 
-.dark .home-subpanel {
+:is(.dark, .nasdaq) .home-subpanel {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.03);
 }
 
-.dark .home-subpanel:hover {
+:is(.dark, .nasdaq) .home-subpanel:hover {
   box-shadow:
     inset 0 1px 0 hsl(0 0% 100% / 0.04),
     0 10px 18px hsl(220 18% 8% / 0.2);
 }
 
-.dark .home-board-pill {
+:is(.dark, .nasdaq) .home-board-pill {
   border-color: hsl(var(--foreground) / 0.12);
   background: hsl(var(--foreground) / 0.05);
   color: hsl(var(--secondary-text));
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.05);
 }
 
-.dark .home-strategy-card {
+:is(.dark, .nasdaq) .home-strategy-card {
   background: linear-gradient(180deg, hsl(var(--card) / 0.92), hsl(var(--elevated) / 0.82));
 }
 
-.dark .home-strategy-card::after {
+:is(.dark, .nasdaq) .home-strategy-card::after {
   box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.04);
 }
 
-.dark .home-news-item {
+:is(.dark, .nasdaq) .home-news-item {
   background: linear-gradient(180deg, hsl(var(--card) / 0.9), hsl(var(--elevated) / 0.84));
 }
 
-.dark .home-news-title {
+:is(.dark, .nasdaq) .home-news-title {
   color: hsl(var(--foreground) / 0.88);
 }
 
-.dark .home-news-snippet {
+:is(.dark, .nasdaq) .home-news-snippet {
   color: hsl(var(--secondary-text) / 0.82);
 }
 
-.dark .home-trace-pre {
+:is(.dark, .nasdaq) .home-trace-pre {
   border-color: hsl(var(--foreground) / 0.12);
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-.dark .home-trace-toggle {
+:is(.dark, .nasdaq) .home-trace-toggle {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.03);
 }
 
-.dark .home-trace-toggle:hover {
+:is(.dark, .nasdaq) .home-trace-toggle:hover {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.04);
 }
 
-.dark .home-trace-toggle > span:first-child {
+:is(.dark, .nasdaq) .home-trace-toggle > span:first-child {
   color: hsl(var(--secondary-text) / 0.88);
 }
 
-.dark .home-trace-pre-content {
+:is(.dark, .nasdaq) .home-trace-pre-content {
   color: hsl(var(--secondary-text) / 0.82);
 }
 
-.dark .home-history-sentiment-badge {
+:is(.dark, .nasdaq) .home-history-sentiment-badge {
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.06);
 }
 
@@ -2001,26 +2071,26 @@ textarea {
   transform: none;
 }
 
-:root:not(.dark) .portfolio-page .btn-primary:not(:disabled),
-:root:not(.dark) .portfolio-page .btn-secondary:not(:disabled) {
+:root:not(.dark):not(.nasdaq) .portfolio-page .btn-primary:not(:disabled),
+:root:not(.dark):not(.nasdaq) .portfolio-page .btn-secondary:not(:disabled) {
   box-shadow:
     inset 0 1px 0 hsl(0 0% 100% / 0.7),
     0 3px 8px hsl(220 18% 30% / 0.045),
     0 10px 20px hsl(220 18% 30% / 0.075);
 }
 
-:root:not(.dark) .portfolio-page .btn-secondary:not(:disabled) {
+:root:not(.dark):not(.nasdaq) .portfolio-page .btn-secondary:not(:disabled) {
   border-color: hsl(218 22% 82% / 0.92);
 }
 
-:root:not(.dark) .portfolio-page .btn-secondary:hover:not(:disabled) {
+:root:not(.dark):not(.nasdaq) .portfolio-page .btn-secondary:hover:not(:disabled) {
   box-shadow:
     inset 0 1px 0 hsl(0 0% 100% / 0.76),
     0 5px 12px hsl(220 18% 30% / 0.06),
     0 14px 26px hsl(220 18% 30% / 0.1);
 }
 
-:root:not(.dark) .portfolio-page .btn-primary:hover:not(:disabled) {
+:root:not(.dark):not(.nasdaq) .portfolio-page .btn-primary:hover:not(:disabled) {
   box-shadow:
     inset 0 1px 0 hsl(0 0% 100% / 0.18),
     0 18px 34px rgba(0, 212, 255, 0.22);
@@ -2106,7 +2176,7 @@ textarea {
     10px 14px 26px hsl(214 24% 38% / 0.12);
 }
 
-.dark .settings-nav-item-active {
+:is(.dark, .nasdaq) .settings-nav-item-active {
   border-color: hsl(var(--primary) / 0.34);
   background: hsl(var(--primary) / 0.12);
   box-shadow:
@@ -2543,37 +2613,37 @@ textarea {
   color: hsl(var(--muted-text) / 0.8);
 }
 
-.dark .chat-bubble-user {
+:is(.dark, .nasdaq) .chat-bubble-user {
   color: hsl(var(--foreground));
 }
 
-.dark .chat-bubble-ai {
+:is(.dark, .nasdaq) .chat-bubble-ai {
   color: var(--text-secondary-text);
 }
 
-.dark .chat-prose {
+:is(.dark, .nasdaq) .chat-prose {
   --chat-prose-fg: hsl(var(--foreground));
 }
 
-.dark .chat-prose h2 {
+:is(.dark, .nasdaq) .chat-prose h2 {
   color: hsl(var(--color-purple));
 }
 
-.dark .session-item .title,
-.dark .session-item.active .title {
+:is(.dark, .nasdaq) .session-item .title,
+:is(.dark, .nasdaq) .session-item.active .title {
   color: hsl(var(--foreground));
 }
 
-.dark .session-item:not(.active) .title {
+:is(.dark, .nasdaq) .session-item:not(.active) .title {
   color: hsl(var(--secondary-text));
 }
 
-.dark .session-item:not(.active):hover .title {
+:is(.dark, .nasdaq) .session-item:not(.active):hover .title {
   color: hsl(var(--foreground));
 }
 
-.dark .session-item .meta,
-.dark .session-item.active .meta {
+:is(.dark, .nasdaq) .session-item .meta,
+:is(.dark, .nasdaq) .session-item.active .meta {
   color: hsl(var(--muted-text));
 }
 

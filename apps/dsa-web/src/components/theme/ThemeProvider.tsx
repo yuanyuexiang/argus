@@ -11,6 +11,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       attribute="class"
       defaultTheme="dark"
       enableSystem
+      themes={['light', 'dark', 'nasdaq']}
       disableTransitionOnChange
     >
       {children}

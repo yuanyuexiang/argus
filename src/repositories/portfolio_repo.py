@@ -137,7 +137,11 @@ class PortfolioRepository:
     def portfolio_write_session(self):
         session = self.db.get_session()
         try:
-            session.connection().exec_driver_sql("BEGIN IMMEDIATE")
+            # SQLite：用 BEGIN IMMEDIATE 立即取得写锁，让账本的 read-modify-write
+            # 落在同一个稳定写窗口内；PostgreSQL 基于 MVCC 且不支持该语法，
+            # 直接沿用默认事务语义即可。
+            if self.db.is_sqlite:
+                session.connection().exec_driver_sql("BEGIN IMMEDIATE")
         except OperationalError as exc:
             session.close()
             if self._is_sqlite_locked_error(exc):
