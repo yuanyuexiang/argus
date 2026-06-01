@@ -5,6 +5,7 @@ import { createParsedApiError, getParsedApiError, type ParsedApiError } from '..
 import { alphasiftApi, notifyAlphaSiftConfigChanged, notifySystemConfigChanged } from '../api/alphasift';
 import { systemConfigApi } from '../api/systemConfig';
 import { ApiErrorAlert, Button, ConfirmDialog, EmptyState } from '../components/common';
+import { MasterDetail } from '../components/layout/master-detail';
 import {
   AuthSettingsCard,
   ChangePasswordCard,
@@ -601,7 +602,23 @@ const SettingsPage: React.FC = () => {
   );
 
   return (
-    <div className="settings-page min-h-full px-4 pb-6 pt-4 md:px-6">
+    <MasterDetail
+      list={
+        <div className="flex h-full min-h-0 flex-col overflow-y-auto p-2">
+          <SettingsCategoryNav
+            categories={categories}
+            itemsByCategory={itemsByCategory}
+            activeCategory={activeCategory}
+            onSelect={setActiveCategory}
+          />
+        </div>
+      }
+      listLabel="设置分类"
+      listWidth="280px"
+      mobileList="stack"
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
+    >
+      <div className="settings-page flex h-full min-h-0 flex-col overflow-y-auto px-4 pb-6 pt-4 md:px-6">
       <div className="mb-5 rounded-[1.5rem] border settings-border bg-card/94 px-5 py-5 shadow-soft-card-strong backdrop-blur-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -655,17 +672,7 @@ const SettingsPage: React.FC = () => {
       {isLoading ? (
         <SettingsLoading />
       ) : (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[280px_1fr]">
-          <aside className="lg:sticky lg:top-4 lg:self-start">
-            <SettingsCategoryNav
-              categories={categories}
-              itemsByCategory={itemsByCategory}
-              activeCategory={activeCategory}
-              onSelect={setActiveCategory}
-            />
-          </aside>
-
-          <section className="space-y-4">
+        <section className="space-y-4">
             {alphasiftItem ? (
               <SettingsSectionCard
                 title="AlphaSift 选股"
@@ -929,8 +936,8 @@ const SettingsPage: React.FC = () => {
               </SettingsPanelErrorBoundary>
             ) : activeConfigPanel}
           </section>
-        </div>
       )}
+      </div>
 
       {toast ? (
         <div className="fixed bottom-5 right-5 z-50 w-[320px] max-w-[calc(100vw-24px)]">
@@ -960,7 +967,7 @@ const SettingsPage: React.FC = () => {
           setShowImportConfirm(false);
         }}
       />
-    </div>
+    </MasterDetail>
   );
 };
 

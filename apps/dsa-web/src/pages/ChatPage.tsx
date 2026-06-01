@@ -9,6 +9,7 @@ import { ApiErrorAlert, Badge, Button, ConfirmDialog, EmptyState, InlineAlert, S
 import { getParsedApiError } from '../api/error';
 import type { SkillInfo } from '../api/agent';
 import { DashboardStateBlock } from '../components/dashboard';
+import { MasterDetail } from '../components/layout/master-detail';
 import {
   useAgentChatStore,
   type Message,
@@ -655,31 +656,13 @@ const ChatPage: React.FC = () => {
   );
 
   return (
-    <div
-      data-testid="chat-workspace"
-      className="flex h-[calc(100vh-5rem)] w-full min-w-0 gap-4 overflow-hidden sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
+    <MasterDetail
+      list={<div className="flex h-full min-h-0 flex-col">{sidebarContent}</div>}
+      listLabel="历史对话"
+      listOpen={sidebarOpen}
+      onListOpenChange={setSidebarOpen}
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
     >
-      {/* Desktop sidebar */}
-      <div className="hidden h-full w-64 flex-shrink-0 flex-col overflow-hidden rounded-[1.25rem] border border-white/8 bg-card/82 shadow-soft-card md:flex">
-        {sidebarContent}
-      </div>
-
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <div className="page-drawer-overlay absolute inset-0" />
-          <div
-            className="absolute left-0 top-0 bottom-0 w-72 flex flex-col glass-card overflow-hidden border-r border-white/10 bg-card/90 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {sidebarContent}
-          </div>
-        </div>
-      )}
-
       {/* Delete confirmation dialog */}
       <ConfirmDialog
         isOpen={Boolean(deleteConfirmId)}
@@ -693,13 +676,16 @@ const ChatPage: React.FC = () => {
       />
 
       {/* Main chat area */}
-      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
+      <div
+        data-testid="chat-workspace"
+        className="flex h-full min-w-0 flex-1 flex-col overflow-hidden p-3 lg:p-4"
+      >
         <header className="mb-4 flex-shrink-0 space-y-3">
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="md:hidden p-1.5 -ml-1 rounded-lg hover:bg-hover transition-colors text-secondary-text hover:text-foreground"
+                className="lg:hidden p-1.5 -ml-1 rounded-lg hover:bg-hover transition-colors text-secondary-text hover:text-foreground"
                 aria-label="历史对话"
               >
                 <svg
@@ -1159,7 +1145,7 @@ const ChatPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </MasterDetail>
   );
 };
 

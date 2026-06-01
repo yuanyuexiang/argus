@@ -10,6 +10,7 @@ import { ApiErrorAlert, ConfirmDialog, Button, EmptyState, InlineAlert } from '.
 import { DashboardStateBlock } from '../components/dashboard';
 import { StockAutocomplete } from '../components/StockAutocomplete';
 import { HistoryList, StockHistoryTrendDrawer } from '../components/history';
+import { MasterDetail } from '../components/layout/master-detail';
 import { ReportMarkdownDrawer } from '../components/report/ReportMarkdownDrawer';
 import { ReportSummary } from '../components/report/ReportSummary';
 import { TaskPanel } from '../components/tasks';
@@ -563,35 +564,45 @@ const HomePage: React.FC = () => {
   );
 
   return (
-    <div
-      data-testid="home-dashboard"
-      className="flex h-[calc(100vh-5rem)] w-full flex-col overflow-hidden md:flex-row sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
+    <MasterDetail
+      list={
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="flex-shrink-0 border-b border-border/60 p-3">
+            <StockAutocomplete
+              value={query}
+              onChange={setQuery}
+              onSubmit={(stockCode, stockName, selectionSource) => {
+                handleSubmitAnalysis(stockCode, stockName, selectionSource);
+              }}
+              placeholder="搜索股票代码 / 名称"
+              disabled={isAnalyzing}
+              className={inputError ? 'border-danger/50' : undefined}
+            />
+          </div>
+          {sidebarContent}
+        </div>
+      }
+      listLabel="历史分析"
+      listOpen={sidebarOpen}
+      onListOpenChange={setSidebarOpen}
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
     >
-      <div className="flex-1 flex flex-col min-h-0 min-w-0 max-w-full lg:max-w-6xl mx-auto w-full">
+      <div
+        data-testid="home-dashboard"
+        className="flex-1 flex flex-col min-h-0 min-w-0 max-w-full lg:max-w-6xl mx-auto w-full"
+      >
         <header className="relative z-30 flex min-w-0 flex-shrink-0 items-center overflow-visible px-3 py-3 md:px-4 md:py-4">
           <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:flex-row md:items-center">
             <div className="flex min-w-0 flex-1 items-center gap-2.5">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="md:hidden -ml-1 flex-shrink-0 rounded-lg p-1.5 text-secondary-text transition-colors hover:bg-hover hover:text-foreground"
+                className="lg:hidden -ml-1 flex-shrink-0 rounded-lg p-1.5 text-secondary-text transition-colors hover:bg-hover hover:text-foreground"
                 aria-label="历史记录"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-              <div className="relative min-w-0 flex-1">
-                <StockAutocomplete
-                  value={query}
-                  onChange={setQuery}
-                  onSubmit={(stockCode, stockName, selectionSource) => {
-                    handleSubmitAnalysis(stockCode, stockName, selectionSource);
-                  }}
-                  placeholder="输入股票代码或名称，如 600519、贵州茅台、AAPL"
-                  disabled={isAnalyzing}
-                  className={inputError ? 'border-danger/50' : undefined}
-                />
-              </div>
               {analysisSkills.length > 0 ? (
                 <div ref={strategyMenuRef} className="relative flex-shrink-0">
                   <button
@@ -736,22 +747,6 @@ const HomePage: React.FC = () => {
         ) : null}
 
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          <div className="hidden min-h-0 w-64 shrink-0 flex-col overflow-hidden pl-4 pb-4 md:flex lg:w-72">
-            {sidebarContent}
-          </div>
-
-          {sidebarOpen ? (
-            <div className="fixed inset-0 z-40 md:hidden" onClick={() => setSidebarOpen(false)}>
-              <div className="page-drawer-overlay absolute inset-0" />
-              <div
-                className="dashboard-card absolute bottom-0 left-0 top-0 flex w-72 flex-col overflow-hidden !rounded-none !rounded-r-xl p-3 shadow-2xl"
-                onClick={(event) => event.stopPropagation()}
-              >
-                {sidebarContent}
-              </div>
-            </div>
-          ) : null}
-
           <section
             ref={dashboardScrollRef}
             data-testid="home-dashboard-scroll"
@@ -928,7 +923,7 @@ const HomePage: React.FC = () => {
         onConfirm={handleDeleteSelectedHistory}
         onCancel={() => setShowDeleteConfirm(false)}
       />
-    </div>
+    </MasterDetail>
   );
 };
 

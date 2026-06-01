@@ -33,6 +33,9 @@ x-backend-common: &backend-common
     args:
       APT_MIRROR: ${APT_MIRROR-mirrors.tuna.tsinghua.edu.cn}
       PIP_INDEX_URL: ${PIP_INDEX_URL-https://pypi.tuna.tsinghua.edu.cn/simple}
+  # backend 与 analyzer 代码/依赖相同，仅启动命令（角色）不同。指定同一 image 名，
+  # 让 Compose 只构建一次该 Dockerfile、两服务复用同一镜像，避免重复构建（省一半时间与磁盘）。
+  image: argus-backend:latest
   restart: unless-stopped
   env_file:
     - ../.env

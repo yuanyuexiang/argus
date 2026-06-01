@@ -5,6 +5,7 @@ import { backtestApi } from '../api/backtest';
 import type { ParsedApiError } from '../api/error';
 import { getParsedApiError } from '../api/error';
 import { ApiErrorAlert, Card, Badge, EmptyState, Pagination, StatusDot, Tooltip } from '../components/common';
+import { MasterDetail } from '../components/layout/master-detail';
 import type {
   BacktestResultItem,
   BacktestRunResponse,
@@ -360,7 +361,33 @@ const BacktestPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-full flex flex-col rounded-[1.5rem] bg-transparent">
+    <MasterDetail
+      list={
+        <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto p-3">
+          {isLoadingPerf ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="backtest-spinner sm" />
+            </div>
+          ) : overallPerf ? (
+            <PerformanceCard metrics={overallPerf} title="整体表现" />
+          ) : (
+            <EmptyState
+              title="暂无指标"
+              description="运行回测后会生成组合级表现指标。"
+              className="h-full min-h-[12rem] border-dashed bg-card/45 shadow-none"
+            />
+          )}
+          {stockPerf && (
+            <PerformanceCard metrics={stockPerf} title={`${stockPerf.code || codeFilter}`} />
+          )}
+        </div>
+      }
+      listLabel="表现指标"
+      listWidth="15rem"
+      mobileList="stack"
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)] rounded-[1.5rem]"
+    >
+      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent">
       {/* Header */}
       <header className="flex-shrink-0 border-b border-white/5 px-3 py-3 sm:px-4">
         <div className="flex max-w-5xl flex-wrap items-center gap-2">
@@ -473,27 +500,7 @@ const BacktestPage: React.FC = () => {
       </header>
 
       {/* Main content */}
-      <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 lg:flex-row">
-        {/* Left sidebar - Performance */}
-        <div className="flex max-h-[38vh] flex-col gap-3 overflow-y-auto lg:max-h-none lg:w-60 lg:flex-shrink-0">
-          {isLoadingPerf ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="backtest-spinner sm" />
-            </div>
-          ) : overallPerf ? (
-            <PerformanceCard metrics={overallPerf} title="整体表现" />
-          ) : (
-            <EmptyState
-              title="暂无指标"
-              description="运行回测后会生成组合级表现指标。"
-              className="h-full min-h-[12rem] border-dashed bg-card/45 shadow-none"
-            />
-          )}
-
-          {stockPerf && (
-            <PerformanceCard metrics={stockPerf} title={`${stockPerf.code || codeFilter}`} />
-          )}
-        </div>
+      <main className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3">
 
         {/* Right content - Results table */}
         <section className="min-h-0 flex-1 overflow-y-auto">
@@ -619,7 +626,8 @@ const BacktestPage: React.FC = () => {
           )}
         </section>
       </main>
-    </div>
+      </div>
+    </MasterDetail>
   );
 };
 

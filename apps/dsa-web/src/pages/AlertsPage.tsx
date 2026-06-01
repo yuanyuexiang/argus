@@ -12,7 +12,8 @@ import {
   type AlertTypeFilter,
 } from '../components/alerts/AlertRuleList';
 import { AlertTriggerHistory } from '../components/alerts/AlertTriggerHistory';
-import { ApiErrorAlert, AppPage, Card, EmptyState, InlineAlert, Loading, PageHeader } from '../components/common';
+import { ApiErrorAlert, Card, EmptyState, InlineAlert, Loading, PageHeader } from '../components/common';
+import { MasterDetail } from '../components/layout/master-detail';
 import type {
   AlertNotificationItem,
   AlertRuleCreateRequest,
@@ -259,33 +260,40 @@ const AlertsPage: React.FC = () => {
   };
 
   return (
-    <AppPage className="space-y-5">
-      <PageHeader
-        eyebrow="Alert Center"
-        title="告警中心"
-        description="管理事件告警、日线技术指标、自选股、持仓/账户联动和大盘红绿灯规则，执行一次性测试，并查看后台评估任务记录的触发历史。"
-      />
-
-      {createError ? <ApiErrorAlert error={createError} onDismiss={() => setCreateError(null)} /> : null}
-      {createSuccess ? (
-        <InlineAlert
-          title="创建成功"
-          message={createSuccess}
-          variant="success"
-          action={(
-            <button type="button" className="text-sm underline" onClick={() => setCreateSuccess(null)}>
-              关闭
-            </button>
-          )}
+    <MasterDetail
+      list={
+        <div className="flex h-full min-h-0 flex-col overflow-y-auto p-3">
+          <AlertRuleForm onSubmit={handleCreateRule} isSubmitting={createLoading} />
+        </div>
+      }
+      listLabel="新建告警规则"
+      listWidth="380px"
+      mobileList="stack"
+      className="h-[calc(100vh-5rem)] sm:h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-2rem)]"
+    >
+      <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4">
+        <PageHeader
+          eyebrow="Alert Center"
+          title="告警中心"
+          description="管理事件告警、日线技术指标、自选股、持仓/账户联动和大盘红绿灯规则，执行一次性测试，并查看后台评估任务记录的触发历史。"
         />
-      ) : null}
-      {rulesError ? <ApiErrorAlert error={rulesError} onDismiss={() => setRulesError(null)} /> : null}
 
-      <div className="grid items-stretch gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
-        <AlertRuleForm onSubmit={handleCreateRule} isSubmitting={createLoading} />
-        <div className="flex h-full min-h-0 flex-col gap-4">
+        {createError ? <ApiErrorAlert error={createError} onDismiss={() => setCreateError(null)} /> : null}
+        {createSuccess ? (
+          <InlineAlert
+            title="创建成功"
+            message={createSuccess}
+            variant="success"
+            action={(
+              <button type="button" className="text-sm underline" onClick={() => setCreateSuccess(null)}>
+                关闭
+              </button>
+            )}
+          />
+        ) : null}
+        {rulesError ? <ApiErrorAlert error={rulesError} onDismiss={() => setRulesError(null)} /> : null}
           <AlertRuleList
-            className="flex h-full min-h-0 flex-col"
+            className="flex flex-col"
             rules={rules}
             total={rulesTotal}
             page={rulesPage}
@@ -314,10 +322,8 @@ const AlertsPage: React.FC = () => {
               message={renderTestResultMessage(testResult)}
             />
           ) : null}
-        </div>
-      </div>
 
-      {triggersError ? <ApiErrorAlert error={triggersError} onDismiss={() => setTriggersError(null)} /> : null}
+        {triggersError ? <ApiErrorAlert error={triggersError} onDismiss={() => setTriggersError(null)} /> : null}
       <AlertTriggerHistory triggers={triggers} isLoading={triggersLoading} />
 
       {notificationsError ? <ApiErrorAlert error={notificationsError} onDismiss={() => setNotificationsError(null)} /> : null}
@@ -359,7 +365,8 @@ const AlertsPage: React.FC = () => {
           </div>
         ) : null}
       </Card>
-    </AppPage>
+      </div>
+    </MasterDetail>
   );
 };
 

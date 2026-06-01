@@ -88,6 +88,7 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
             end={exact}
             onClick={onNavigate}
             aria-label={label}
+            title={collapsed ? label : undefined}
             className={({ isActive }) =>
               cn(
                 'group relative flex items-center gap-3 border-y border-x-0 text-sm transition-all',
@@ -137,6 +138,8 @@ export const SidebarNav: React.FC<SidebarNavProps> = ({ collapsed = false, onNav
         <button
           type="button"
           onClick={() => setShowLogoutConfirm(true)}
+          title={collapsed ? '退出' : undefined}
+          aria-label="退出"
           className={cn(
             'mt-5 flex h-11 w-full cursor-pointer select-none items-center gap-3 rounded-2xl border border-transparent px-3 text-sm text-secondary-text transition-all hover:border-border/70 hover:bg-hover hover:text-foreground',
             collapsed ? 'justify-center px-2' : ''

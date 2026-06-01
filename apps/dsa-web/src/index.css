@@ -135,6 +135,11 @@
   /* Shell Sidebar Custom */
   --shell-sidebar-border: hsl(193 100% 43% / 0.35);
 
+  /* 三栏布局尺寸（微信式：图标栏 / 列表栏 / 主区标题栏高度）。与主题无关，各主题继承。 */
+  --rail-width: 64px;
+  --list-width: 320px;
+  --detail-header-height: 56px;
+
   /* Home page related (using HSL format) */
   --home-loading-ring-track: hsl(var(--primary) / 0.2);
   --home-loading-ring-head: hsl(var(--primary));
