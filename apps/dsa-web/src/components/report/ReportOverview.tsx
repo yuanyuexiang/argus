@@ -6,6 +6,7 @@ import type {
   ReportMeta,
   ReportSummary as ReportSummaryType,
 } from '../../types/analysis';
+import { getSentimentColor, getSentimentLabel } from '../../types/analysis';
 import { Badge, Card, ScoreGauge } from '../common';
 import { formatDateTime } from '../../utils/format';
 import { getReportText, normalizeReportLanguage } from '../../utils/reportLanguage';
@@ -124,10 +125,11 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
 
   // 大盘复盘：单张整宽卡片（标题 + 角落紧凑市场情绪 + 整宽 Markdown 正文），更紧凑。
   if (meta.reportType === 'market_review') {
+    const mrSentimentColor = getSentimentColor(summary.sentimentScore);
     return (
       <div className="space-y-5">
         <Card variant="gradient" padding="md" className="home-report-hero">
-          <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-[28px] font-bold leading-tight text-foreground">
                 {meta.stockName || meta.stockCode}
@@ -142,10 +144,17 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
                 </span>
               </div>
             </div>
-            {/* 角落紧凑市场情绪 */}
-            <div className="shrink-0 rounded-2xl border border-border/50 bg-card/40 px-4 py-3 text-center">
-              <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-muted-text">{text.marketSentiment}</p>
-              <ScoreGauge score={summary.sentimentScore} size="sm" language={reportLanguage} />
+            {/* 紧凑市场情绪 chip（替代高仪表盘卡，减少头部留白） */}
+            <div className="flex shrink-0 items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3.5 py-1.5">
+              <span className="text-xs text-muted-text">{text.marketSentiment}</span>
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: mrSentimentColor, boxShadow: `0 0 8px ${mrSentimentColor}` }}
+              />
+              <span className="text-base font-bold leading-none text-foreground">{summary.sentimentScore}</span>
+              <span className="text-xs font-medium" style={{ color: mrSentimentColor }}>
+                {getSentimentLabel(summary.sentimentScore, reportLanguage)}
+              </span>
             </div>
           </div>
           <div className="home-divider border-t pt-5">
