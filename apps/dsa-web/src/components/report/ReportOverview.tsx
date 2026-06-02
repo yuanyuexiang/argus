@@ -117,10 +117,11 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
   };
 
   const getBoardStatusVariant = (status: BoardStatus): 'success' | 'danger' => {
+    // 中国惯例：领涨=红(danger 色)、领跌=绿(success 色)
     if (status === 'leading') {
-      return 'success';
+      return 'danger';
     }
-    return 'danger';
+    return 'success';
   };
 
   // 大盘复盘：单张整宽卡片（标题 + 角落紧凑市场情绪 + 整宽 Markdown 正文），更紧凑。

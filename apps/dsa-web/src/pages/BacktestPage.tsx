@@ -61,9 +61,9 @@ function outcomeBadge(outcome?: string) {
   if (!outcome) return <Badge variant="default">--</Badge>;
   switch (outcome) {
     case 'win':
-      return <Badge variant="success" glow>{OUTCOME_LABELS.win}</Badge>;
+      return <Badge variant="danger" glow>{OUTCOME_LABELS.win}</Badge>;
     case 'loss':
-      return <Badge variant="danger" glow>{OUTCOME_LABELS.loss}</Badge>;
+      return <Badge variant="success" glow>{OUTCOME_LABELS.loss}</Badge>;
     case 'neutral':
       return <Badge variant="warning">{OUTCOME_LABELS.neutral}</Badge>;
     default:
@@ -88,9 +88,9 @@ function statusBadge(status: string) {
 function actualMovementBadge(movement?: string | null) {
   switch (movement) {
     case 'up':
-      return <Badge variant="success">{MOVEMENT_LABELS.up}</Badge>;
+      return <Badge variant="danger">{MOVEMENT_LABELS.up}</Badge>;
     case 'down':
-      return <Badge variant="danger">{MOVEMENT_LABELS.down}</Badge>;
+      return <Badge variant="success">{MOVEMENT_LABELS.down}</Badge>;
     case 'flat':
       return <Badge variant="warning">{MOVEMENT_LABELS.flat}</Badge>;
     default:
@@ -166,9 +166,9 @@ const PerformanceCard: React.FC<{ metrics: PerformanceMetrics; title: string }> 
     <div className="flex items-center justify-between">
       <span className="text-xs text-muted-text">盈 / 亏 / 中</span>
       <span className="text-xs font-mono">
-        <span className="text-success">{metrics.winCount}</span>
+        <span className="text-danger">{metrics.winCount}</span>
         {' / '}
-        <span className="text-danger">{metrics.lossCount}</span>
+        <span className="text-success">{metrics.lossCount}</span>
         {' / '}
         <span className="text-warning">{metrics.neutralCount}</span>
       </span>
@@ -587,7 +587,7 @@ const BacktestPage: React.FC = () => {
                             {actualMovementBadge(row.actualMovement)}
                             <span className={
                               row.actualReturnPct != null
-                                ? row.actualReturnPct > 0 ? 'text-success' : row.actualReturnPct < 0 ? 'text-danger' : 'text-secondary-text'
+                                ? row.actualReturnPct > 0 ? 'text-danger' : row.actualReturnPct < 0 ? 'text-success' : 'text-secondary-text'
                                 : 'text-muted-text'
                             }>
                               {pct(row.actualReturnPct)}
