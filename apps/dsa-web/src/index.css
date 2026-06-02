@@ -610,9 +610,9 @@
   --border-purple: hsl(204 95% 64% / 0.28);
   --autocomplete-hover-bg: #2da6ff;
 
-  /* 美股惯例：绿涨红跌（green up / red down） */
-  --home-price-up: hsl(150 76% 47%);
-  --home-price-down: hsl(0 84% 64%);
+  /* 中国惯例：红涨绿跌（red up / green down），与浅色/深色主题一致 */
+  --home-price-up: hsl(0 84% 64%);
+  --home-price-down: hsl(150 76% 47%);
   --home-strategy-buy: hsl(150 76% 47%);
 
   /* Home 中原紫色强调 -> 天青蓝，保持整体蓝调统一 */
