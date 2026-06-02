@@ -278,9 +278,9 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
               <ScoreGauge score={summary.sentimentScore} size="lg" language={reportLanguage} />
             </div>
 
-            {/* 操作建议 + 趋势预测 */}
-            <div className="mt-5 flex-1 space-y-4 border-t border-border/50 pt-4">
-              <div className="flex items-start gap-3">
+            {/* 操作建议 + 趋势预测：水平两列 */}
+            <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border/50 pt-4">
+              <div className="flex items-start gap-2">
                 <div className="home-insight-icon w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -291,7 +291,7 @@ export const ReportOverview: React.FC<ReportOverviewProps> = ({
                   <p className="home-insight-body text-sm leading-6">{summary.operationAdvice || text.noAdvice}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 <div className="home-insight-icon w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />

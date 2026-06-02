@@ -736,7 +736,7 @@ const HomePage: React.FC = () => {
           <section
             ref={dashboardScrollRef}
             data-testid="home-dashboard-scroll"
-            className="flex-1 min-w-0 min-h-0 overflow-x-auto overflow-y-auto px-3 pb-4 md:px-6 touch-pan-y"
+            className="flex-1 min-w-0 min-h-0 overflow-x-auto overflow-y-auto px-3 pb-4 pt-3 md:px-6 md:pt-4 touch-pan-y"
           >
             {marketReviewNotice ? (
               <div className="mb-3">
