@@ -130,6 +130,33 @@ docker compose -f docker/docker-compose.separated.yml up -d --build web
 - **数据迁移**：首次启动会在空库上自动建表（`create_all`）。项目未集成 Alembic，已有 SQLite 数据迁移到 PostgreSQL 需自行导出导入。
 - 桌面端（Electron）不受影响，仍为本地 SQLite 单包模式。
 
+镜像构建完成后，若只想**用已生成镜像快速拉起 / 重启**（不重新构建），用配套的免构建文件：
+
+```bash
+docker compose -f docker/docker-compose.prebuilt.yml up -d
+```
+
+它与分离栈拓扑一致，仅把 `build` 换成直接引用镜像（`argus-backend:latest` / `argus-separated-web:latest`）。如已推送到私有 registry，可用环境变量覆盖镜像名：
+
+```bash
+BACKEND_IMAGE=registry.example.com/argus-backend:1.0.0 \
+WEB_IMAGE=registry.example.com/argus-web:1.0.0 \
+docker compose -f docker/docker-compose.prebuilt.yml up -d
+```
+
+若服务器**已有 Traefik 做反向代理**，用 `docker/docker-compose.traefik.yml`：它**去掉了 Nginx**（由 backend/FastAPI 直接托管 SPA + `/api`），backend 挂 Traefik labels、接入 Traefik 的外部网络、不映射宿主端口（ingress 全交给 Traefik）。在 `.env` 设置后启动：
+
+```bash
+# .env 中按你的 Traefik 实际情况设置：
+#   ARGUS_DOMAIN=argus.example.com
+#   TRAEFIK_NETWORK=traefik        # Traefik 所在的已存在外部网络名
+#   TRAEFIK_ENTRYPOINT=websecure   # HTTP 一般为 web，HTTPS 一般为 websecure
+#   TRAEFIK_CERTRESOLVER=le        # 用 HTTPS 时填 Traefik 里的证书解析器名
+docker compose -f docker/docker-compose.traefik.yml up -d
+```
+
+HTTP-only（不走 TLS）时，删掉该文件 backend 标签里的两行 `...tls=true` / `...tls.certresolver=...`，并把 `TRAEFIK_ENTRYPOINT` 设为 `web`。
+
 ---
 
 ## 🖥️ 方案二：直接部署

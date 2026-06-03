@@ -1,0 +1,119 @@
+# ===================================
+# Traefik 反向代理部署 —— 仅使用已构建镜像（不构建）
+# ===================================
+#
+# 本栈自带 Traefik（作为本机唯一反向代理 / TLS 入口，独占宿主 80/443）。
+# 拓扑：Traefik(:80/:443) ──▶ backend(FastAPI :8000，同时托管 SPA 静态 + /api) ──▶ db(PostgreSQL)
+#
+# 说明：
+#   - 不需要 Nginx —— argus-backend 镜像已内置前端静态，FastAPI 直接托管 SPA 与 /api，
+#     所以 Traefik 把整个域名路由到 backend:8000 即可（含前端 SPA 路由兜底）。
+#   - 仅 traefik 映射宿主端口（80/443）；backend/analyzer/db 只在 matrix-network 内部互通。
+#   - 注意：本机若已有别的 Traefik 在跑会抢占 80/443，请勿重复启动。
+#
+# 部署前在仓库根 .env 中设置：
+#   ARGUS_DOMAIN=argus.matrix-net.tech        # 你的访问域名
+#   TRAEFIK_ENTRYPOINT=websecure              # 入口点（本栈 web=80→自动跳 https，websecure=443）
+#   TRAEFIK_CERTRESOLVER=aliyunresolver       # 证书解析器名（本栈已内置 aliyunresolver）
+#   ALICLOUD_ACCESS_KEY / ALICLOUD_SECRET_KEY # 阿里云 DNS-01 取证凭据（必填，勿写死进本文件）
+#   POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB   # 数据库口令，生产务必修改
+#   BACKEND_IMAGE                             # 可选，覆盖后端镜像（推送私有 registry 后）
+#
+# 使用：docker compose -f docker/docker-compose.traefik.yml up -d
+# 停止：docker compose -f docker/docker-compose.traefik.yml down
+
+name: argus
+
+services:
+
+  # --- PostgreSQL 数据库（仅内部网络）---
+  db:
+    image: postgres:16-alpine
+    container_name: argus-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-argus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-argus}
+      - POSTGRES_DB=${POSTGRES_DB:-argus}
+      - TZ=Asia/Shanghai
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-argus} -d ${POSTGRES_DB:-argus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - matrix-network
+
+  # --- 后端 FastAPI（托管 SPA + /api），由 Traefik 路由 ---
+  backend:
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:latest}
+    container_name: argus-backend
+    restart: unless-stopped
+    command: ["python", "main.py", "--serve-only", "--host", "0.0.0.0", "--port", "8000"]
+    env_file:
+      - ./.env
+    environment:
+      - TZ=Asia/Shanghai
+      - WEBUI_HOST=0.0.0.0
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-argus}:${POSTGRES_PASSWORD:-argus}@db:5432/${POSTGRES_DB:-argus}
+      # 位于 Traefik 之后，信任转发头以正确识别协议(HTTPS)/客户端 IP，从而正确签发 Secure Cookie
+      - TRUST_X_FORWARDED_FOR=true
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./strategies:/app/strategies:ro
+      - ./longbridge_tokens:/home/dsa/.longbridge
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - matrix-network
+    labels:
+      - "traefik.enable=true"
+      # 回源网络由 traefik 全局 --providers.docker.network=matrix-network 决定，无需在此重复
+      # 路由规则：按域名。如需路径前缀路由可改用 PathPrefix(`/argus`) 等
+      - "traefik.http.routers.argus.rule=Host(`${ARGUS_DOMAIN:-argus.matrix-net.tech}`)"
+      - "traefik.http.routers.argus.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}"
+      - "traefik.http.routers.argus.service=argus"
+      # 回源端口
+      - "traefik.http.services.argus.loadbalancer.server.port=8000"
+      # --- HTTPS（如用 HTTP-only，删掉下面两行，并把 entrypoint 设为 web）---
+      - "traefik.http.routers.argus.tls=true"
+      - "traefik.http.routers.argus.tls.certresolver=${TRAEFIK_CERTRESOLVER:-aliyunresolver}"
+
+  # --- 可选：定时分析任务（与 backend 同镜像，仅内部网络）---
+  # 如不需要可用 `--scale analyzer=0` 关闭。
+  analyzer:
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:latest}
+    container_name: argus-analyzer
+    restart: unless-stopped
+    command: ["python", "main.py", "--schedule"]
+    env_file:
+      - ./.env
+    environment:
+      - TZ=Asia/Shanghai
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-argus}:${POSTGRES_PASSWORD:-argus}@db:5432/${POSTGRES_DB:-argus}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./strategies:/app/strategies:ro
+      - ./longbridge_tokens:/home/dsa/.longbridge
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - matrix-network
+
+volumes:
+  pgdata:
+
+networks:
+  matrix-network:
+    external: true

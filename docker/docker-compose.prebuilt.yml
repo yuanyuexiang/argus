@@ -1,0 +1,112 @@
+# ===================================
+# 前后端分离 + 独立 PostgreSQL —— 仅使用已构建镜像（不构建）
+# ===================================
+#
+# 拓扑：web(Nginx :80) ──/api──▶ backend(FastAPI :8000) ──▶ db(PostgreSQL)
+# 与 docker-compose.separated.yml 相同，但本文件不构建、直接引用已生成镜像启动。
+#
+# 默认镜像（由 docker-compose.separated.yml 构建产出）：
+#   backend/analyzer → argus-backend:latest
+#   web              → argus-separated-web:latest
+# 可用环境变量覆盖（如推送到私有 registry 后）：BACKEND_IMAGE / WEB_IMAGE
+#
+# 使用：docker compose -f docker/docker-compose.prebuilt.yml up -d
+# 停止：docker compose -f docker/docker-compose.prebuilt.yml down
+# 凭据/端口默认值来自仓库根 .env（POSTGRES_USER/PASSWORD/DB、WEB_PORT），生产务必改默认口令。
+
+name: argus-separated
+
+services:
+  # --- PostgreSQL 数据库 ---
+  db:
+    image: postgres:16-alpine
+    container_name: argus-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-argus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-argus}
+      - POSTGRES_DB=${POSTGRES_DB:-argus}
+      - TZ=Asia/Shanghai
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-argus} -d ${POSTGRES_DB:-argus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - argus
+    # 默认不对外暴露端口；如需外部连接再放开：
+    # ports:
+    #   - "5432:5432"
+
+  # --- 后端 FastAPI（仅 API）---
+  backend:
+    image: ${BACKEND_IMAGE:-argus-backend:latest}
+    container_name: argus-backend
+    restart: unless-stopped
+    command: ["python", "main.py", "--serve-only", "--host", "0.0.0.0", "--port", "8000"]
+    env_file:
+      - ../.env
+    environment:
+      - TZ=Asia/Shanghai
+      - WEBUI_HOST=0.0.0.0
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-argus}:${POSTGRES_PASSWORD:-argus}@db:5432/${POSTGRES_DB:-argus}
+      - TRUST_X_FORWARDED_FOR=true
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../reports:/app/reports
+      - ../strategies:/app/strategies:ro
+      - ../longbridge_tokens:/home/dsa/.longbridge
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks:
+      - argus
+
+  # --- 前端 Nginx 网关（托管 SPA + 反代 /api）---
+  web:
+    image: ${WEB_IMAGE:-argus-separated-web:latest}
+    container_name: argus-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-80}:80"
+    networks:
+      - argus
+
+  # --- 可选：定时分析任务（与 backend 同镜像，共享同一 PostgreSQL）---
+  # 如只需 Web 服务，可用 `--scale analyzer=0` 关闭。
+  analyzer:
+    image: ${BACKEND_IMAGE:-argus-backend:latest}
+    container_name: argus-analyzer
+    restart: unless-stopped
+    command: ["python", "main.py", "--schedule"]
+    env_file:
+      - ../.env
+    environment:
+      - TZ=Asia/Shanghai
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-argus}:${POSTGRES_PASSWORD:-argus}@db:5432/${POSTGRES_DB:-argus}
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+      - ../reports:/app/reports
+      - ../strategies:/app/strategies:ro
+      - ../longbridge_tokens:/home/dsa/.longbridge
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - argus
+
+volumes:
+  pgdata:
+
+networks:
+  argus:
+    driver: bridge

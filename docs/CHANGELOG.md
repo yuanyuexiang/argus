@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [新功能] 新增 `docker/docker-compose.traefik.yml`：面向已有 Traefik 反向代理的服务器，去掉 Nginx（由 backend/FastAPI 直接托管 SPA + /api），backend 挂 Traefik labels、接入外部 Traefik 网络、不映射宿主端口；域名/入口/网络/证书解析器经 `ARGUS_DOMAIN`/`TRAEFIK_NETWORK`/`TRAEFIK_ENTRYPOINT`/`TRAEFIK_CERTRESOLVER` 配置。
+
+- [新功能] 新增 `docker/docker-compose.prebuilt.yml`：与分离部署栈拓扑相同但**不构建**，直接引用已生成镜像(`argus-backend:latest` / `argus-separated-web:latest`)启动；支持用 `BACKEND_IMAGE` / `WEB_IMAGE` 覆盖（便于推送私有 registry 后部署）。
+
 - [修复] 统一涨跌/盈亏配色为中国惯例「红涨绿跌」：纠正纳斯达克主题的价格涨跌色，以及回测(实际涨跌/收益率/盈亏计数/胜负徽标)、持仓(未实现盈亏/收益率)、报告(板块领涨领跌)等处误用的美股绿涨红跌配色。
 
 - [修复] 大盘复盘报告在首页(历史查看与实时运行)以 Markdown 正确渲染，不再原样输出 `#`/`>` 等标记。
