@@ -1,0 +1,33 @@
+# SearXNG 配置 —— 供 argus 后端抓取股票资讯使用
+# 部署：把本目录（searxng/）整体放到与 compose 同级的部署目录，
+#       即挂载点 ./searxng -> /etc/searxng。
+#
+# 三个关键点（缺一就会"暂无相关资讯"、被限流或无法启动）：
+#   1) search.formats 含 json —— 后端走 /search?format=json，默认只开 html 会 403
+#   2) server.limiter: false —— 内网服务高频调用，开 limiter 会被 429
+#   3) secret_key —— 自挂载配置时镜像【不会】自动改密钥，若仍是占位会拒绝启动；
+#      种子时必须把占位替换成随机串（见下方部署命令的 sed）。
+#
+# 部署/本地种子（务必用 sed 注入随机密钥，别只 cp）：
+#   mkdir -p searxng
+#   sed "s/REPLACE_WITH_RANDOM_SECRET/$(openssl rand -hex 32)/" \
+#       docker/searxng/settings.yml > searxng/settings.yml
+
+use_default_settings: true
+
+server:
+  # 占位符，种子时用 openssl 随机串替换；切勿写死真实密钥进仓库
+  secret_key: "REPLACE_WITH_RANDOM_SECRET"
+  limiter: false
+  image_proxy: false
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  formats:
+    - html
+    - json
+
+general:
+  debug: false
+  instance_name: "argus-searxng"

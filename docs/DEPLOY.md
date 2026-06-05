@@ -157,6 +157,44 @@ docker compose -f docker/docker-compose.traefik.yml up -d
 
 HTTP-only（不走 TLS）时，删掉该文件 backend 标签里的两行 `...tls=true` / `...tls.certresolver=...`，并把 `TRAEFIK_ENTRYPOINT` 设为 `web`。
 
+#### 资讯抓取：自建 SearXNG（可选但推荐）
+
+报告里的「相关资讯」由后端经搜索引擎抓取。若未配置任何搜索 API Key（Bocha/Tavily/SerpAPI/Brave/Anspire），后端只能退回不稳定的公共 SearXNG 实例，结果常为空（显示「暂无相关资讯」）。`docker-compose.traefik.yml` 已内置一个**自建 SearXNG** 服务（仅内部网络，免 Key、无配额；服务器直连外网即可正常抓取）。启用步骤：
+
+```bash
+# 1) 生成 SearXNG 运行配置（挂载点 ./searxng）——务必用 sed 注入随机密钥，
+#    单纯 cp 会因占位密钥导致 SearXNG 拒绝启动（报 "secret_key is not changed"）
+mkdir -p searxng
+sed "s/REPLACE_WITH_RANDOM_SECRET/$(openssl rand -hex 32)/" docker/searxng/settings.yml > searxng/settings.yml
+
+# 2) 在 .env 追加
+#   SEARXNG_BASE_URLS=http://searxng:8080
+#   SEARXNG_PUBLIC_INSTANCES_ENABLED=false
+
+# 3) 启动 / 更新
+docker compose -f docker/docker-compose.traefik.yml up -d
+```
+
+注意：① `searxng/settings.yml` 必须开启 `json` 输出并 `limiter: false`（仓库模板已设好），否则后端会拿到 403/被限流，资讯仍为空；② 自挂载配置时镜像**不会**自动改密钥，占位 `REPLACE_WITH_RANDOM_SECRET` 必须在种子时用 sed 换成随机串，否则容器反复重启；③ 资讯是**分析时**抓取写入报告的，配置后需对股票**重新跑一次分析**才会出现，老报告不会回填。
+
+本地用 `docker/docker-compose.separated.yml` 测试时，SearXNG 已内置，挂载到 gitignore 的仓库根 `./searxng`（不污染仓库模板）：
+
+```bash
+# 在仓库根执行（同样用 sed 注入随机密钥）
+mkdir -p searxng
+sed "s/REPLACE_WITH_RANDOM_SECRET/$(openssl rand -hex 32)/" docker/searxng/settings.yml > searxng/settings.yml
+# .env 追加： SEARXNG_BASE_URLS=http://searxng:8080  SEARXNG_PUBLIC_INSTANCES_ENABLED=false
+docker compose -f docker/docker-compose.separated.yml up -d --build
+# 若本机走 Clash 等代理，SearXNG 需经代理才能访问上游搜索引擎：
+#   取消 compose 中 searxng 的 HTTP_PROXY/HTTPS_PROXY 注释（指向你的代理端口）。
+```
+
+验证连通（应返回含 `results` 的 JSON）：
+
+```bash
+docker exec argus-backend curl -s "http://searxng:8080/search?q=test&format=json" | head -c 200
+```
+
 ---
 
 ## 🖥️ 方案二：直接部署

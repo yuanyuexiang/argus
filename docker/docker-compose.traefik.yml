@@ -18,6 +18,11 @@
 #   ALICLOUD_ACCESS_KEY / ALICLOUD_SECRET_KEY # 阿里云 DNS-01 取证凭据（必填，勿写死进本文件）
 #   POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB   # 数据库口令，生产务必修改
 #   BACKEND_IMAGE                             # 可选，覆盖后端镜像（推送私有 registry 后）
+#   SEARXNG_BASE_URLS=http://searxng:8080     # 让后端用自建 SearXNG 抓资讯
+#   SEARXNG_PUBLIC_INSTANCES_ENABLED=false    # 自建后关闭公共实例兜底
+# 首启前用 sed 注入随机密钥生成配置（占位密钥不替换 SearXNG 会拒绝启动）：
+#   mkdir -p searxng
+#   sed "s/REPLACE_WITH_RANDOM_SECRET/$(openssl rand -hex 32)/" docker/searxng/settings.yml > searxng/settings.yml
 #
 # 使用：docker compose -f docker/docker-compose.traefik.yml up -d
 # 停止：docker compose -f docker/docker-compose.traefik.yml down
@@ -108,6 +113,25 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - matrix-network
+
+  # --- SearXNG 元搜索（自建，给后端抓取股票资讯用，仅内部网络）---
+  # 后端通过 .env 的 SEARXNG_BASE_URLS=http://searxng:8080 调用，需在
+  # ./searxng/settings.yml 启用 json 输出并关闭 limiter（仓库已提供该文件）。
+  searxng:
+    image: searxng/searxng:latest
+    container_name: argus-searxng
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - SEARXNG_BASE_URL=http://searxng:8080/
+    # 密钥需在种子配置时用 sed 注入随机串（见文件头说明）；占位未替换会导致 SearXNG 拒绝启动。
+    # 挂载需可写（SearXNG 运行期会写入缓存等）。
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    expose:
+      - "8080"
     networks:
       - matrix-network
 

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+- [新功能] `docker/docker-compose.traefik.yml` 与 `docker/docker-compose.separated.yml` 均内置自建 SearXNG 元搜索服务（仅内部网络，配套 `docker/searxng/settings.yml` 已开启 json 输出、关闭 limiter；种子时用 sed 注入随机密钥）：直连外网即可让后端稳定抓取股票资讯，免搜索 API Key/配额；启用方式为在 `.env` 设 `SEARXNG_BASE_URLS=http://searxng:8080`、`SEARXNG_PUBLIC_INSTANCES_ENABLED=false`。separated 栈挂载到 gitignore 的仓库根 `./searxng`，不污染仓库模板。
+
 - [新功能] 新增 `docker/docker-compose.traefik.yml`：面向已有 Traefik 反向代理的服务器，去掉 Nginx（由 backend/FastAPI 直接托管 SPA + /api），backend 挂 Traefik labels、接入外部 Traefik 网络、不映射宿主端口；域名/入口/网络/证书解析器经 `ARGUS_DOMAIN`/`TRAEFIK_NETWORK`/`TRAEFIK_ENTRYPOINT`/`TRAEFIK_CERTRESOLVER` 配置。
 
 - [新功能] 新增 `docker/docker-compose.prebuilt.yml`：与分离部署栈拓扑相同但**不构建**，直接引用已生成镜像(`argus-backend:latest` / `argus-separated-web:latest`)启动；支持用 `BACKEND_IMAGE` / `WEB_IMAGE` 覆盖（便于推送私有 registry 后部署）。

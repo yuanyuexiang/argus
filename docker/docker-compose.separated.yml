@@ -122,6 +122,36 @@ services:
     container_name: argus-analyzer
     command: ["python", "main.py", "--schedule"]
 
+  # --- SearXNG 元搜索（自建，给后端抓取股票资讯用，仅内部网络）---
+  # 启用前先用 sed 注入随机密钥生成运行配置（仓库根 ./searxng 已在 .gitignore；
+  # 注意必须 sed 替换占位密钥，单纯 cp 会因占位密钥导致 SearXNG 拒绝启动）：
+  #   mkdir -p searxng
+  #   sed "s/REPLACE_WITH_RANDOM_SECRET/$(openssl rand -hex 32)/" docker/searxng/settings.yml > searxng/settings.yml
+  # 并在 .env 设置： SEARXNG_BASE_URLS=http://searxng:8080  SEARXNG_PUBLIC_INSTANCES_ENABLED=false
+  searxng:
+    image: searxng/searxng:latest
+    container_name: argus-searxng
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - SEARXNG_BASE_URL=http://searxng:8080/
+      # 本地若走 Clash 等代理才需要（让 SearXNG 能访问 Google/Bing 上游）；按需取消注释：
+      # - HTTP_PROXY=http://host.docker.internal:7890
+      # - HTTPS_PROXY=http://host.docker.internal:7890
+      # - NO_PROXY=localhost,127.0.0.1
+    volumes:
+      # 挂载到仓库根 ./searxng（gitignore），避免改脏仓库模板 docker/searxng/settings.yml
+      - ./searxng:/etc/searxng:rw
+    expose:
+      - "8080"
+    networks:
+      - argus
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   pgdata:
 
