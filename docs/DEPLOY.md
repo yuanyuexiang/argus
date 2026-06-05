@@ -159,7 +159,9 @@ HTTP-only（不走 TLS）时，删掉该文件 backend 标签里的两行 `...tl
 
 #### 资讯抓取：自建 SearXNG（可选但推荐）
 
-报告里的「相关资讯」由后端经搜索引擎抓取。若未配置任何搜索 API Key（Bocha/Tavily/SerpAPI/Brave/Anspire），后端只能退回不稳定的公共 SearXNG 实例，结果常为空（显示「暂无相关资讯」）。`docker-compose.traefik.yml` 已内置一个**自建 SearXNG** 服务（仅内部网络，免 Key、无配额；服务器直连外网即可正常抓取）。启用步骤：
+报告里的「相关资讯」由后端经搜索引擎抓取。若未配置任何搜索 API Key（Bocha/Tavily/SerpAPI/Brave/Anspire），后端只能退回不稳定的公共 SearXNG 实例，结果常为空（显示「暂无相关资讯」）。`docker-compose.traefik.yml` 已内置一个**自建 SearXNG** 服务（仅内部网络，免 Key、无配额）。启用步骤：
+
+> ⚠️ 引擎可达性：仓库模板 `docker/searxng/settings.yml` 默认启用**国内可达引擎**（Bing/百度/搜狗）并禁用被墙的 Google/Brave/DuckDuckGo/Startpage/Wikipedia——因为国内云服务器（阿里云等）访问不了这些西方引擎，否则每次搜索全 `ConnectTimeout`、资讯为空。海外服务器或服务器能科学上网时，可在该文件里把 google/duckduckgo 等 `disabled` 改回 `false`（或给 searxng 容器配 `HTTP_PROXY`/`HTTPS_PROXY`）。
 
 ```bash
 # 1) 生成 SearXNG 运行配置（挂载点 ./searxng）——务必用 sed 注入随机密钥，

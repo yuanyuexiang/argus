@@ -31,3 +31,29 @@ search:
 general:
   debug: false
   instance_name: "argus-searxng"
+
+# 引擎选择：国内服务器（阿里云等）被 GFW 挡着，访问不了 Google/Brave/DuckDuckGo/
+# Startpage/Wikipedia 等西方引擎（会 ConnectTimeout、返回空）。这里启用国内可达引擎
+# （Bing 国内可达 + 百度 + 搜狗），并禁用被墙引擎，避免每次搜索空等超时。
+# 海外服务器可反过来：把 google/duckduckgo 等 disabled 改 false、bing 之外按需调整。
+engines:
+  - name: bing
+    disabled: false
+  - name: baidu
+    disabled: false
+  - name: sogou
+    disabled: false
+  - name: google
+    disabled: true
+  - name: duckduckgo
+    disabled: true
+  - name: brave
+    disabled: true
+  - name: startpage
+    disabled: true
+  - name: qwant
+    disabled: true
+  - name: wikipedia
+    disabled: true
+  - name: wikidata
+    disabled: true

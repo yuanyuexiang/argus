@@ -54,7 +54,7 @@ services:
 
   # --- 后端 FastAPI（托管 SPA + /api），由 Traefik 路由 ---
   backend:
-    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:latest}
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v1}
     container_name: argus-backend
     restart: unless-stopped
     command: ["python", "main.py", "--serve-only", "--host", "0.0.0.0", "--port", "8000"]
@@ -95,7 +95,7 @@ services:
   # --- 可选：定时分析任务（与 backend 同镜像，仅内部网络）---
   # 如不需要可用 `--scale analyzer=0` 关闭。
   analyzer:
-    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:latest}
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v1}
     container_name: argus-analyzer
     restart: unless-stopped
     command: ["python", "main.py", "--schedule"]
