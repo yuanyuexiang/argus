@@ -1,16 +1,26 @@
 # ===================================
-# 前后端分离 + 独立 PostgreSQL —— 仅使用已构建镜像（不构建）
+# 前后端分离 + 独立 PostgreSQL —— 默认引用已构建镜像，可选就地构建 backend
 # ===================================
 #
 # 拓扑：web(Nginx :80) ──/api──▶ backend(FastAPI :8000) ──▶ db(PostgreSQL)
-# 与 docker-compose.separated.yml 相同，但本文件不构建、直接引用已生成镜像启动。
+# 与 docker-compose.separated.yml 相同；本文件默认直接引用已生成镜像启动，
+# 同时为 backend 内置了 build 段，方便一条命令完成打包（等价于原 buildx 命令）。
 #
-# 默认镜像（由 docker-compose.separated.yml 构建产出）：
-#   backend/analyzer → argus-backend:latest
-#   web              → argus-separated-web:latest
-# 可用环境变量覆盖（如推送到私有 registry 后）：BACKEND_IMAGE / WEB_IMAGE
+# 默认镜像：
+#   backend/analyzer → yuanyuexiang/argus-backend:v2（可由 BACKEND_IMAGE 覆盖）
+#   web              → argus-separated-web:latest（可由 WEB_IMAGE 覆盖）
 #
-# 使用：docker compose -f docker/docker-compose.prebuilt.yml up -d
+# 打包 backend（替代手敲 buildx，默认走清华镜像源）：
+#   docker compose -f docker/docker-compose.prebuilt.yml build backend
+# 仅本地加载到 docker（等价 buildx --load）：上面命令即默认行为。
+# 需要换源/换 tag 时用环境变量覆盖，例如：
+#   BACKEND_IMAGE=yuanyuexiang/argus-backend:v3 \
+#   APT_MIRROR=mirrors.aliyun.com \
+#   PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple \
+#   docker compose -f docker/docker-compose.prebuilt.yml build backend
+# 如需多平台/推送，仍可显式：docker buildx ... --platform linux/amd64,linux/arm64 --push
+#
+# 启动：docker compose -f docker/docker-compose.prebuilt.yml up -d
 # 停止：docker compose -f docker/docker-compose.prebuilt.yml down
 # 凭据/端口默认值来自仓库根 .env（POSTGRES_USER/PASSWORD/DB、WEB_PORT），生产务必改默认口令。
 
@@ -43,7 +53,19 @@ services:
 
   # --- 后端 FastAPI（仅 API）---
   backend:
-    image: ${BACKEND_IMAGE:-argus-backend:latest}
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v2}
+    # 内置打包配置：等价于
+    #   docker buildx build --platform linux/amd64 \
+    #     --build-arg APT_MIRROR=... --build-arg PIP_INDEX_URL=... \
+    #     -t <image> -f docker/Dockerfile . --load
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      platforms:
+        - linux/amd64
+      args:
+        APT_MIRROR: ${APT_MIRROR:-mirrors.tuna.tsinghua.edu.cn}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
     container_name: argus-backend
     restart: unless-stopped
     command: ["python", "main.py", "--serve-only", "--host", "0.0.0.0", "--port", "8000"]
@@ -83,7 +105,7 @@ services:
   # --- 可选：定时分析任务（与 backend 同镜像，共享同一 PostgreSQL）---
   # 如只需 Web 服务，可用 `--scale analyzer=0` 关闭。
   analyzer:
-    image: ${BACKEND_IMAGE:-argus-backend:latest}
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v2}
     container_name: argus-analyzer
     restart: unless-stopped
     command: ["python", "main.py", "--schedule"]
