@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from "motion/react";
-import { Lock, Loader2, Cpu, TrendingUp, Network, ShieldCheck } from "lucide-react";
+import { ShieldUser, Loader2, Cpu, TrendingUp, BrainCircuit, ShieldCheck } from "lucide-react";
 import { Button, Input, ParticleBackground } from '../components/common';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { ParsedApiError } from '../api/error';
@@ -116,11 +116,11 @@ const LoginPage: React.FC = () => {
 
           <div className="mt-8 flex flex-col items-center">
             <h2 className="text-4xl font-extrabold tracking-tighter text-[var(--login-text-primary)] sm:text-6xl">
-              <span className="bg-gradient-to-r from-[var(--login-text-primary)] via-[var(--login-text-primary)] to-[var(--login-text-secondary)] bg-clip-text text-transparent">DAILY </span>
-              <span className="bg-gradient-to-r from-[var(--login-brand-start)] to-[var(--login-brand-end)] bg-clip-text text-transparent drop-shadow-[0_0_20px_var(--login-accent-glow)]">STOCK</span>
+              <span className="bg-gradient-to-r from-[var(--login-text-primary)] via-[var(--login-text-primary)] to-[var(--login-text-secondary)] bg-clip-text text-transparent">日常 </span>
+              <span className="bg-gradient-to-r from-[var(--login-brand-start)] to-[var(--login-brand-end)] bg-clip-text text-transparent drop-shadow-[0_0_20px_var(--login-accent-glow)]"> 股市</span>
             </h2>
             <h3 className="mt-1 text-xl font-bold uppercase tracking-[0.5em] text-[var(--login-text-muted)]">
-              Analysis Engine
+              Agent 智能分析引擎
             </h3>
           </div>
 
@@ -130,8 +130,8 @@ const LoginPage: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="mt-6 flex items-center gap-2 rounded-full border border-[var(--login-accent-border)] bg-[var(--login-accent-soft)] px-3 py-1 text-[10px] font-medium text-[var(--login-accent-text)] backdrop-blur-sm"
           >
-            <Network className="h-3 w-3" />
-            <span>V3.X QUANTITATIVE SYSTEM</span>
+            <BrainCircuit className="h-3 w-3" />
+            <span>Agent量化分析决策引擎</span>
           </motion.div>
         </motion.div>
 
@@ -158,7 +158,7 @@ const LoginPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Lock className="h-5 w-5 text-[var(--login-accent-text)]" />
+                    <ShieldUser className="h-5 w-5 text-[var(--login-accent-text)]" />
                     <span>管理员登录</span>
                   </>
                 )}
@@ -166,7 +166,7 @@ const LoginPage: React.FC = () => {
               <p className="mt-2 text-sm text-[var(--login-text-secondary)]">
                 {isFirstTime
                   ? '首次启用认证，请为系统工作台设置管理员密码。'
-                  : '访问 DSA 量化决策引擎需要有效的身份凭证。'}
+                  : '访问 Argus 量化决策引擎需要有效的身份凭证。'}
               </p>
             </div>
 
@@ -249,7 +249,7 @@ const LoginPage: React.FC = () => {
           transition={{ delay: 0.6 }}
           className="mt-8 text-center font-mono text-xs uppercase tracking-wider text-[var(--login-text-muted)]"
         >
-          Secure Connection Established via DSA-V3-TLS
+          安全连接已建立 · 全链路加密守护
         </motion.p>
       </div>
 

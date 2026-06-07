@@ -196,7 +196,7 @@ const PortfolioPage: React.FC = () => {
   const [accountCreateSuccess, setAccountCreateSuccess] = useState<string | null>(null);
   const [accountForm, setAccountForm] = useState({
     name: '',
-    broker: 'Demo',
+    broker: '',
     market: 'cn' as 'cn' | 'hk' | 'us',
     baseCurrency: 'CNY',
   });
@@ -667,7 +667,7 @@ const PortfolioPage: React.FC = () => {
       setWriteWarning(null);
       setAccountForm({
         name: '',
-        broker: 'Demo',
+        broker: '',
         market: accountForm.market,
         baseCurrency: accountForm.baseCurrency,
       });

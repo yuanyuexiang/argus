@@ -53,7 +53,7 @@ services:
 
   # --- 后端 FastAPI（仅 API）---
   backend:
-    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v2}
+    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v3}
     # 内置打包配置：等价于
     #   docker buildx build --platform linux/amd64 \
     #     --build-arg APT_MIRROR=... --build-arg PIP_INDEX_URL=... \
