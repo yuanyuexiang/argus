@@ -53,7 +53,7 @@ services:
 
   # --- 后端 FastAPI（仅 API）---
   backend:
-    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v3}
+    image: ${BACKEND_IMAGE:-registry.cn-hangzhou.aliyuncs.com/yuanyuexiang/argus-backend:v4}
     # 内置打包配置：等价于
     #   docker buildx build --platform linux/amd64 \
     #     --build-arg APT_MIRROR=... --build-arg PIP_INDEX_URL=... \
@@ -105,7 +105,7 @@ services:
   # --- 可选：定时分析任务（与 backend 同镜像，共享同一 PostgreSQL）---
   # 如只需 Web 服务，可用 `--scale analyzer=0` 关闭。
   analyzer:
-    image: ${BACKEND_IMAGE:-yuanyuexiang/argus-backend:v2}
+    image: ${BACKEND_IMAGE:-registry.cn-hangzhou.aliyuncs.com/yuanyuexiang/argus-backend:v4}
     container_name: argus-analyzer
     restart: unless-stopped
     command: ["python", "main.py", "--schedule"]
